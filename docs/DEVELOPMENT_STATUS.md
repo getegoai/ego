@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-29
 **Branch**: `main`
-**Current phase**: M0/M1 foundation
-**Active issue**: none; next recommended issue is `EDC-004`
+**Current phase**: M1 DB + Source + Vault
+**Active issue**: none; next recommended issue is `EDC-005`
 
 ## Collaboration Model
 
@@ -44,13 +44,46 @@ Each implementation commit should include the relevant tests unless splitting is
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
-| Audit/source/vault scan | Not started | M1 chain after DB foundation. |
+| Audit/source/vault scan | In progress | `EDC-004` completed; next `EDC-005`, `EDC-006`, `EDC-007`. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-004 - Audit Log Minimal Implementation
+
+Status: completed.
+
+Position in the project:
+
+- This is the first control-plane feature. Before Ego starts creating sources, scanning files, or generating evidence, it can now record what happened.
+- Audit is the user's future "black box recorder": it lets us explain data changes, errors, policy blocks, model calls, and authorizations.
+
+What changed:
+
+- Added `src/ego_data_core/audit/service.py`.
+- Added `AuditService.append_audit_log(...)` and `list_audit_logs(...)`.
+- Added append-only behavior at the service API level: no update/delete audit methods are exposed.
+- Added hash chaining with `prev_hash` and `event_hash`.
+- Added support for key event types such as `source_created`, `object_ingested`, `evidence_created`, `job_created`, `model_invoked`, `policy_blocked`, `brief_generated`, `action_authorized`, and `error`.
+- Added `GET /api/v1/audit/logs` with pagination and basic filters.
+- Added `tests/audit/test_audit_service.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/audit/test_audit_service.py` passed.
+
+Issues handled:
+
+- Audit payloads are required to be JSON serializable so records can safely enter SQLite.
+- Invalid actor types fail early with a clear error.
+- Error events are explicitly supported and tested.
+
+Next iteration:
+
+- Start `EDC-005`: Source Management API. This is the first user-facing data setup step: creating/listing authorized data sources, with audit records on creation.
 
 ### EDC-029 - Test Foundation And Temporary Workspace Fixtures
 

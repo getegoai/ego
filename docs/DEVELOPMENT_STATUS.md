@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-29
 **Branch**: `main`
 **Current phase**: M0/M1 foundation
-**Active issue**: none; next recommended issue is `EDC-029`
+**Active issue**: none; next recommended issue is `EDC-004`
 
 ## Collaboration Model
 
@@ -43,7 +43,7 @@ Each implementation commit should include the relevant tests unless splitting is
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
-| ID/config/test foundation | In progress | `EDC-002` and `EDC-003` completed; next `EDC-029`. |
+| ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
 | Audit/source/vault scan | Not started | M1 chain after DB foundation. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
@@ -51,6 +51,41 @@ Each implementation commit should include the relevant tests unless splitting is
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-029 - Test Foundation And Temporary Workspace Fixtures
+
+Status: completed.
+
+Position in the project:
+
+- This iteration makes future development safer and easier to verify. It ensures tests do not depend on a developer's real local data directory.
+- It prepares the project for the next product-relevant chain: Audit, Source, file scanning, and Evidence creation.
+
+What changed:
+
+- Added `tests/conftest.py` with shared fixtures:
+  - `tmp_data_home`
+  - `db_path`
+  - `migrated_db_path`
+  - `client`
+  - `sample_workspace`
+  - `sample_documents`
+- Added safe sample files under `tests/fixtures/sample_workspace/`.
+- Updated the health test to use the shared API client fixture.
+- Added `tests/test_fixtures.py` to prove fixtures isolate data, create a migrated DB, reuse the API client, and provide sample txt/md files.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest` passed with 23 tests.
+
+Issues handled:
+
+- A first assertion assumed pytest temp directories would never live under the user home. On Windows, pytest temp paths can sit under the user's AppData temp directory. The test was corrected to assert the real safety condition: fixtures do not write to the default `~/.ego_data_core`.
+- PDF/DOCX sample support is intentionally represented as `None` for now; text and Markdown samples are enough for the scanner/parser foundation until optional document dependencies are introduced.
+
+Next iteration:
+
+- Start `EDC-004`: append-only Audit Log service and `/api/v1/audit/logs`, so data mutations and errors can be traced before Source and scanner features start creating records.
 
 ### EDC-003 - Configuration System And Local Directory Layout
 

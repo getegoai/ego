@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-29
 **Branch**: `main`
-**Current phase**: M0 Project Foundation
-**Active issue**: none; next recommended issue is `EDC-001`
+**Current phase**: M1 DB + Vault foundation
+**Active issue**: none; next recommended issue is `EDC-002`
 
 ## Collaboration Model
 
@@ -42,7 +42,7 @@ Each implementation commit should include the relevant tests unless splitting is
 | Git repository | Done | Initialized on `main`; design baseline committed. |
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
-| Database and migrations | Not started | `EDC-001`; schema already validates in SQLite memory check. |
+| Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Not started | `EDC-002`, `EDC-003`, `EDC-029`. |
 | Audit/source/vault scan | Not started | M1 chain after DB foundation. |
 | Document parsing | Not started | `EDC-008`. |
@@ -51,6 +51,42 @@ Each implementation commit should include the relevant tests unless splitting is
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-001 - SQLite Initialization And Migration Management
+
+Status: completed.
+
+Position in the project:
+
+- This iteration validates the first hard technical dependency for the evidence pipeline: a local SQLite database can be created repeatably from the v0.1 schema.
+- It does not yet create Ego business records; it only proves that the storage layer can safely initialize the schema that later Source, Evidence, Audit, and Brief modules will use.
+
+What changed:
+
+- Added `src/ego_data_core/storage/db.py` with `get_connection`, `transaction`, `run_migrations`, and database health helpers.
+- Bundled the schema as `src/ego_data_core/storage/migrations/001_init.sql`.
+- Updated `/api/v1/health` to report real database status instead of the EDC-000 placeholder.
+- Added FastAPI startup migration through application lifespan.
+- Updated `scripts/init_db.py` to run migrations.
+- Added `tests/storage/test_db_init.py` for schema creation, key tables, foreign keys, idempotence, and transactions.
+- Updated `README.md` with current database initialization behavior.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/test_health.py tests/storage/test_db_init.py` passed.
+- `.venv\Scripts\python scripts\init_db.py` created the local SQLite database on first run.
+- A second `.venv\Scripts\python scripts\init_db.py` reported no pending migrations.
+- FastAPI startup created the database before the first health request in a temporary `EGO_DATA_HOME`.
+- `get_database_status()` returned `status=ok`, `foreign_keys=true`, `table_count=42`, and `migration_count=1`.
+
+Issues handled:
+
+- We avoided writing to the user home directory before `EDC-003` formalizes configuration. The temporary default is workspace-local `.ego_data_core/`, which is git-ignored.
+- The schema is kept inside the Python package so runtime code and tests can find it consistently.
+
+Next iteration:
+
+- Start `EDC-002`: implement the unified ID generator used by users, devices, sources, objects, evidence, jobs, audit records, and later business entities.
 
 ### EDC-000 - Project Foundation
 
@@ -101,6 +137,7 @@ EDC-000 -> EDC-001 -> EDC-002 -> EDC-003 -> EDC-029 -> EDC-028
 | 2026-05-29 | Use taskbook priority when product and task docs differ. | The taskbook is already issue-shaped and better for incremental delivery. |
 | 2026-05-29 | CLI and Markdown brief come before polished UI. | Fastest path to a reliable evidence-backed demo. |
 | 2026-05-29 | RuleBasedAdapter is required before optional model adapters. | Demo must run without Ollama or cloud APIs. |
+| 2026-05-29 | Use workspace-local `.ego_data_core/` until EDC-003 formalizes config. | Avoid surprising writes to the user home directory while validating database mechanics. |
 
 ## Status Report Format
 

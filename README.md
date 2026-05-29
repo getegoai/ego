@@ -37,11 +37,12 @@ Invoke-RestMethod http://127.0.0.1:8765/api/v1/health
 
 ## Initialize The Database
 
-`EDC-001` will implement SQLite migration management. Until then, the command below is a non-destructive placeholder:
-
 ```powershell
 python scripts/init_db.py
 ```
+
+The command creates or updates the local SQLite database under `EGO_DATA_HOME`
+when set, or under the workspace-local `.ego_data_core/` directory by default.
 
 ## Run Tests
 
@@ -52,4 +53,3 @@ pytest tests/test_health.py
 ## Safety Boundary
 
 The current code does not scan, modify, move, rename, delete, upload, or transmit user files. All user-data ingestion and vault behavior starts in later issues and must remain non-destructive by default.
-

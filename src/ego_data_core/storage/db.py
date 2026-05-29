@@ -10,8 +10,9 @@ from pathlib import Path
 import sqlite3
 from typing import Iterator
 
+from ego_data_core.kernel.config import load_settings
 
-DATABASE_FILENAME = "ego_data_core.sqlite"
+
 MIGRATIONS_DIR = Path(__file__).with_name("migrations")
 
 
@@ -23,20 +24,11 @@ class MigrationResult:
 
 
 def get_data_home() -> Path:
-    """Return the current local Ego data home.
-
-    EDC-003 will formalize profiles and user-home defaults. Until then, the
-    fallback stays repo-local to avoid surprising writes outside the workspace.
-    """
-
-    configured_home = os.getenv("EGO_DATA_HOME")
-    if configured_home:
-        return Path(configured_home).expanduser().resolve()
-    return (Path.cwd() / ".ego_data_core").resolve()
+    return load_settings(create_dirs=False).paths.data_home
 
 
 def get_default_database_path() -> Path:
-    return get_data_home() / "db" / DATABASE_FILENAME
+    return load_settings().paths.database_path
 
 
 def resolve_database_path(database_path: str | os.PathLike[str] | None = None) -> Path:
@@ -153,4 +145,3 @@ def _get_applied_versions(connection: sqlite3.Connection) -> set[str]:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
-

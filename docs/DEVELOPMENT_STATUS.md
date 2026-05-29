@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-29
 **Branch**: `main`
-**Current phase**: M1 DB + Vault foundation
-**Active issue**: none; next recommended issue is `EDC-003`
+**Current phase**: M0/M1 foundation
+**Active issue**: none; next recommended issue is `EDC-029`
 
 ## Collaboration Model
 
@@ -43,7 +43,7 @@ Each implementation commit should include the relevant tests unless splitting is
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
-| ID/config/test foundation | In progress | `EDC-002` completed; next `EDC-003`, then `EDC-029`. |
+| ID/config/test foundation | In progress | `EDC-002` and `EDC-003` completed; next `EDC-029`. |
 | Audit/source/vault scan | Not started | M1 chain after DB foundation. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
@@ -51,6 +51,40 @@ Each implementation commit should include the relevant tests unless splitting is
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-003 - Configuration System And Local Directory Layout
+
+Status: completed.
+
+Position in the project:
+
+- This iteration turns the local runtime layout into an explicit contract before Source, Vault, Audit, and background jobs start writing data.
+- It replaces the temporary workspace-local fallback from EDC-001 with the product-intended default: `~/.ego_data_core`, while tests continue to isolate data through temporary `EGO_DATA_HOME` values.
+
+What changed:
+
+- Added `src/ego_data_core/kernel/config.py`.
+- Added `load_settings`, `EgoSettings`, `EgoPaths`, profile validation, and directory creation.
+- Supported `dev`, `test`, and `prod` profiles through `EGO_PROFILE`.
+- Formalized `EGO_DATA_HOME`, defaulting to `~/.ego_data_core`.
+- Created stable runtime paths for `config`, `db`, `vault`, `objects`, `versions`, `evidence`, `extracted_text`, `model_outputs`, `briefs`, `logs`, and `tmp`.
+- Updated the SQLite layer to read its default database path from the configuration system.
+- Updated `.env.example`, `README.md`, and kernel exports.
+- Added `tests/kernel/test_config.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/kernel/test_config.py tests/storage/test_db_init.py tests/test_health.py` passed.
+- Tests confirmed default home path without creating it, env override behavior, required directory creation, profile validation, and profile-specific config file paths.
+
+Issues handled:
+
+- We avoided creating real user-home data during tests by using `create_dirs=False` for default-path assertions and temporary `EGO_DATA_HOME` values for write behavior.
+- The database layer no longer owns local path policy; it delegates default location to the kernel configuration module.
+
+Next iteration:
+
+- Start `EDC-029`: establish shared pytest fixtures for temporary `EGO_DATA_HOME`, database isolation, sample files, and API test client reuse.
 
 ### EDC-002 - Unified ID Generator
 
@@ -170,6 +204,7 @@ EDC-000 -> EDC-001 -> EDC-002 -> EDC-003 -> EDC-029 -> EDC-028
 | 2026-05-29 | CLI and Markdown brief come before polished UI. | Fastest path to a reliable evidence-backed demo. |
 | 2026-05-29 | RuleBasedAdapter is required before optional model adapters. | Demo must run without Ollama or cloud APIs. |
 | 2026-05-29 | Use workspace-local `.ego_data_core/` until EDC-003 formalizes config. | Avoid surprising writes to the user home directory while validating database mechanics. |
+| 2026-05-29 | EDC-003 restores the product default `~/.ego_data_core`; tests must use temporary `EGO_DATA_HOME`. | Align runtime behavior with the v0.1 docs while keeping development verification isolated. |
 
 ## Status Report Format
 

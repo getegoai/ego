@@ -42,7 +42,13 @@ python scripts/init_db.py
 ```
 
 The command creates or updates the local SQLite database under `EGO_DATA_HOME`
-when set, or under the workspace-local `.ego_data_core/` directory by default.
+when set, or under `~/.ego_data_core` by default.
+
+Supported profiles:
+
+```powershell
+$env:EGO_PROFILE = "dev"   # dev, test, or prod
+```
 
 ## Run Tests
 

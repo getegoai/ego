@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-29
 **Branch**: `main`
 **Current phase**: M1 DB + Vault foundation
-**Active issue**: none; next recommended issue is `EDC-002`
+**Active issue**: none; next recommended issue is `EDC-003`
 
 ## Collaboration Model
 
@@ -43,7 +43,7 @@ Each implementation commit should include the relevant tests unless splitting is
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
-| ID/config/test foundation | Not started | `EDC-002`, `EDC-003`, `EDC-029`. |
+| ID/config/test foundation | In progress | `EDC-002` completed; next `EDC-003`, then `EDC-029`. |
 | Audit/source/vault scan | Not started | M1 chain after DB foundation. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
@@ -51,6 +51,38 @@ Each implementation commit should include the relevant tests unless splitting is
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-002 - Unified ID Generator
+
+Status: completed.
+
+Position in the project:
+
+- This iteration gives all later persisted entities a common local ID format before we start creating Source, Object, Evidence, Job, or Audit records.
+- It keeps ID generation independent of the database so future scanners and workers can create IDs without shared mutable state.
+
+What changed:
+
+- Added `src/ego_data_core/kernel/id_generator.py`.
+- Added a whitelisted prefix set covering the v0.1 required prefixes: `usr`, `dev`, `src`, `obj`, `ver`, `ev`, `chk`, `enh`, `proj`, `task`, `q`, `risk`, `auto`, `brief`, `job`, `mi`, `act`, `aud`, `report`, and `item`.
+- Implemented IDs in the form `<prefix>_<YYYYMMDD>_<secure_base32_suffix>`.
+- Added prefix normalization, parsing, and clear invalid-prefix errors.
+- Re-exported `generate_id` from `ego_data_core.kernel`.
+- Added `tests/kernel/test_id_generator.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/kernel/test_id_generator.py` passed.
+- The collision test generated 100,000 `ev` IDs with no collision.
+
+Issues handled:
+
+- No external ULID package was added. The generator uses Python's `secrets` module and a Crockford-style Base32 alphabet, keeping the foundation light and offline.
+- The date segment makes IDs easy to inspect and group even though within-day ordering is intentionally not promised yet.
+
+Next iteration:
+
+- Start `EDC-003`: formalize local configuration and directory layout so database, vault, logs, model outputs, and temporary files all use one explicit `EGO_DATA_HOME` strategy.
 
 ### EDC-001 - SQLite Initialization And Migration Management
 

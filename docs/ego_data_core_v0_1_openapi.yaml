@@ -1,0 +1,201 @@
+openapi: 3.1.0
+info:
+  title: Ego Data Core v0.1 Local API
+  version: 0.1.0
+  description: Local-first API for Ego Vault, Ego Twin, Work Graph, Brief, Model Router, and Operator Bridge.
+servers:
+  - url: http://127.0.0.1:8765/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /sources:
+    get:
+      summary: List sources
+      responses:
+        '200': { description: Source list }
+    post:
+      summary: Create source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSourceRequest'
+      responses:
+        '200': { description: Created source }
+  /vault/ingest:
+    post:
+      summary: Ingest URI into Ego Vault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestRequest'
+      responses:
+        '200': { description: Ingest result }
+  /vault/evidence/{evidence_id}:
+    get:
+      summary: Get evidence
+      parameters:
+        - name: evidence_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Evidence }
+  /twin/enhance:
+    post:
+      summary: Create enhancement job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnhancementJobRequest'
+      responses:
+        '200': { description: Job created }
+  /twin/enhancements:
+    get:
+      summary: List enhancements
+      parameters:
+        - name: evidence_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: Enhancement list }
+  /projects/discover:
+    post:
+      summary: Discover projects
+      responses:
+        '200': { description: Job created }
+  /projects:
+    get:
+      summary: List projects
+      responses:
+        '200': { description: Project list }
+  /projects/{project_id}:
+    get:
+      summary: Get project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Project }
+  /briefs/generate:
+    post:
+      summary: Generate brief
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateBriefRequest'
+      responses:
+        '200': { description: Job created }
+  /briefs/daily/latest:
+    get:
+      summary: Get latest daily brief
+      responses:
+        '200': { description: Latest Daily Brief }
+  /model-router/run:
+    post:
+      summary: Run model through Model Router
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelRunRequest'
+      responses:
+        '200': { description: Model invocation result }
+  /actions/propose:
+    post:
+      summary: Propose action
+      responses:
+        '200': { description: Action created }
+  /actions/{action_id}/authorize:
+    post:
+      summary: Authorize action
+      parameters:
+        - name: action_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Authorization created }
+  /actions/{action_id}/execute:
+    post:
+      summary: Execute authorized action
+      parameters:
+        - name: action_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Execution result }
+  /audit/logs:
+    get:
+      summary: Query audit logs
+      responses:
+        '200': { description: Audit logs }
+components:
+  schemas:
+    CreateSourceRequest:
+      type: object
+      required: [source_type, name, root_uri]
+      properties:
+        source_type: { type: string, enum: [filesystem, screen, browser, operator, sensor, manual] }
+        name: { type: string }
+        root_uri: { type: string }
+        privacy_level: { type: string, enum: [public, private, sensitive, critical], default: private }
+        scan_policy: { type: object }
+        retention_policy: { type: object }
+    IngestRequest:
+      type: object
+      required: [source_id, uri]
+      properties:
+        source_id: { type: string }
+        uri: { type: string }
+        ingest_mode: { type: string, enum: [copy, reference], default: copy }
+    CreateEnhancementJobRequest:
+      type: object
+      required: [evidence_ids, enhancement_type]
+      properties:
+        evidence_ids:
+          type: array
+          items: { type: string }
+        enhancement_type: { type: string }
+        strategy: { type: string, enum: [auto, local_only, external_allowed], default: auto }
+        privacy_level: { type: string, enum: [public, private, sensitive, critical], default: private }
+    GenerateBriefRequest:
+      type: object
+      required: [report_type, date]
+      properties:
+        report_type: { type: string, enum: [daily, weekly, project, data_health, automation] }
+        date: { type: string }
+        project_ids:
+          type: array
+          items: { type: string }
+        force_regenerate: { type: boolean, default: false }
+    ModelRunRequest:
+      type: object
+      required: [purpose, privacy_level, input_refs]
+      properties:
+        purpose: { type: string }
+        privacy_level: { type: string, enum: [public, private, sensitive, critical] }
+        input_refs:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string }
+              id: { type: string }
+        preferred_runtime: { type: string, default: auto }
+        allow_external: { type: boolean, default: false }

@@ -1,0 +1,901 @@
+[
+  {
+    "id": "EDC-000",
+    "title": "建立仓库骨架与工程约束",
+    "milestone": "M0 Project Foundation",
+    "priority": "P0",
+    "module": "repo",
+    "depends_on": [],
+    "summary": "创建 ego-data-core Python/FastAPI 项目骨架，固定目录结构、依赖管理、基础配置和开发命令。",
+    "inputs": [
+      "Ego_Data_Core_v0.1_Technical_Architecture_and_Schema.md",
+      "ego_data_core_v0_1_schema.sqlite.sql",
+      "ego_data_core_v0_1_openapi.yaml"
+    ],
+    "outputs": [
+      "pyproject.toml",
+      "src/ego_data_core/",
+      "tests/",
+      "scripts/",
+      ".env.example",
+      "README.md"
+    ],
+    "acceptance": [
+      "python -m ego_data_core.main 或 uvicorn ego_data_core.api.app:app 可启动本地 API",
+      "GET /api/v1/health 返回 ok、版本号、数据库状态",
+      "README 中包含本地启动、初始化数据库、运行测试的命令",
+      "不得创建任何会修改用户原始文件的逻辑"
+    ],
+    "tests": [
+      "pytest tests/test_health.py"
+    ],
+    "codex_prompt": "请创建 ego-data-core 的 Python 3.11 + FastAPI 项目骨架。使用 src layout，保留清晰模块边界：api、kernel、storage、connectors、vault、twin、workgraph、brief、nightshift、model_router、compute_fabric、operator、safety、audit。先实现 /api/v1/health，加入 README、.env.example 和基础 pytest。"
+  },
+  {
+    "id": "EDC-001",
+    "title": "SQLite 初始化与迁移管理",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "storage",
+    "depends_on": [
+      "EDC-000"
+    ],
+    "summary": "接入现有 SQLite Schema，建立本地数据库初始化、迁移执行、连接管理和事务封装。",
+    "inputs": [
+      "ego_data_core_v0_1_schema.sqlite.sql"
+    ],
+    "outputs": [
+      "src/ego_data_core/storage/db.py",
+      "src/ego_data_core/storage/migrations/001_init.sql",
+      "scripts/init_db.py"
+    ],
+    "acceptance": [
+      "首次启动可自动创建数据库",
+      "PRAGMA foreign_keys = ON",
+      "schema 全部表可创建成功",
+      "重复执行迁移不破坏已有数据"
+    ],
+    "tests": [
+      "pytest tests/storage/test_db_init.py"
+    ],
+    "codex_prompt": "请实现 SQLite 初始化与迁移系统。把现有 schema 放入 storage/migrations/001_init.sql；提供 get_connection、transaction、run_migrations。所有连接开启 foreign_keys。写 pytest 验证 schema 可创建、关键表存在、重复迁移安全。"
+  },
+  {
+    "id": "EDC-002",
+    "title": "统一 ID 生成器",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "kernel",
+    "depends_on": [
+      "EDC-000"
+    ],
+    "summary": "实现带前缀、日期和随机/ULID 后缀的统一对象 ID，覆盖 User、Device、Source、Object、Evidence、Job 等核心实体。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/kernel/id_generator.py"
+    ],
+    "acceptance": [
+      "支持 usr/dev/src/obj/ver/ev/chk/enh/proj/task/q/risk/auto/brief/job/mi/act/aud/report/item 等前缀",
+      "ID 可排序或至少可按日期识别",
+      "10 万次生成无碰撞",
+      "非法前缀会抛出明确异常"
+    ],
+    "tests": [
+      "pytest tests/kernel/test_id_generator.py"
+    ],
+    "codex_prompt": "请实现统一 ID 生成器。格式建议 prefix_YYYYMMDD_<ulid_or_secure_random>。要求可测试、无全局状态污染、非法前缀报错。为所有 v0.1 实体预置允许前缀，并写碰撞测试。"
+  },
+  {
+    "id": "EDC-003",
+    "title": "配置系统与本地目录规范",
+    "milestone": "M0 Project Foundation",
+    "priority": "P0",
+    "module": "kernel",
+    "depends_on": [
+      "EDC-000"
+    ],
+    "summary": "建立 Ego 本地工作目录、Vault 目录、日志目录、模型配置、隐私策略配置。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/kernel/config.py",
+      ".env.example"
+    ],
+    "acceptance": [
+      "默认数据目录为用户主目录下 .ego_data_core 或环境变量 EGO_DATA_HOME",
+      "Vault、extracted_text、model_outputs、briefs、logs、tmp 目录自动创建",
+      "配置项不包含硬编码绝对路径",
+      "配置支持 dev/test/prod 三类 profile"
+    ],
+    "tests": [
+      "pytest tests/kernel/test_config.py"
+    ],
+    "codex_prompt": "请实现配置系统。使用 pydantic-settings 或等价轻量方案。默认 EGO_DATA_HOME=~/.ego_data_core，可用环境变量覆盖。启动时创建 vault 子目录：objects、versions、evidence、extracted_text、model_outputs、briefs、logs、tmp。"
+  },
+  {
+    "id": "EDC-004",
+    "title": "Audit Log 最小实现",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "audit",
+    "depends_on": [
+      "EDC-001",
+      "EDC-002"
+    ],
+    "summary": "所有采集、增强、模型调用、策略拦截、用户授权与错误必须写入审计日志。",
+    "inputs": [
+      "schema audit 相关表"
+    ],
+    "outputs": [
+      "src/ego_data_core/audit/service.py"
+    ],
+    "acceptance": [
+      "提供 append_audit_log(event_type, actor, target, payload) 方法",
+      "审计记录不可被普通业务代码更新，只允许追加",
+      "GET /api/v1/audit/logs 可分页查询",
+      "错误也必须可写 audit"
+    ],
+    "tests": [
+      "pytest tests/audit/test_audit_service.py"
+    ],
+    "codex_prompt": "请实现 AuditService。提供追加审计日志和分页查询。事件类型包括 source_created、object_ingested、evidence_created、job_created、model_invoked、policy_blocked、brief_generated、action_authorized、error。不要实现删除审计日志的业务接口。"
+  },
+  {
+    "id": "EDC-005",
+    "title": "Source 管理 API",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "api/connectors",
+    "depends_on": [
+      "EDC-001",
+      "EDC-004"
+    ],
+    "summary": "实现数据源创建、列表、启用/停用和隐私等级配置。",
+    "inputs": [
+      "OpenAPI /sources"
+    ],
+    "outputs": [
+      "src/ego_data_core/api/routes/sources.py",
+      "src/ego_data_core/connectors/source_service.py"
+    ],
+    "acceptance": [
+      "POST /sources 可创建 filesystem/screen/browser/manual source",
+      "GET /sources 返回 source 列表",
+      "创建时写 audit",
+      "默认 privacy_level=private"
+    ],
+    "tests": [
+      "pytest tests/api/test_sources.py"
+    ],
+    "codex_prompt": "请实现 Source 管理 API。严格按 OpenAPI 草案实现 GET/POST /api/v1/sources，字段包括 source_type、name、root_uri、privacy_level、scan_policy、retention_policy。写入数据库 sources 表，并写 audit。"
+  },
+  {
+    "id": "EDC-006",
+    "title": "文件系统扫描器 v0",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "connectors/filesystem",
+    "depends_on": [
+      "EDC-005",
+      "EDC-002",
+      "EDC-003"
+    ],
+    "summary": "扫描指定目录，计算文件哈希，生成 Raw Object、Object Version 和 Evidence。不得修改用户原目录。",
+    "inputs": [
+      "filesystem source"
+    ],
+    "outputs": [
+      "src/ego_data_core/connectors/filesystem/scanner.py"
+    ],
+    "acceptance": [
+      "支持递归扫描，可配置 max_depth、include/exclude glob",
+      "计算 sha256、文件大小、mtime、mime type",
+      "新文件生成 raw_objects、object_versions、evidence",
+      "同 hash 文件不重复复制，或能标记重复关系",
+      "扫描过程只读，不移动、不改名、不删除用户文件"
+    ],
+    "tests": [
+      "pytest tests/connectors/test_filesystem_scanner.py"
+    ],
+    "codex_prompt": "请实现只读文件系统扫描器。输入 source_id，读取 sources.root_uri 和 scan_policy_json。递归扫描常见文档文件，计算 sha256，复制版本到 Ego Vault 的 versions 目录，写 raw_objects、object_versions、evidence。严禁修改用户原目录。"
+  },
+  {
+    "id": "EDC-007",
+    "title": "Vault 文件存储与 URI 规范",
+    "milestone": "M1 DB + Vault",
+    "priority": "P0",
+    "module": "vault",
+    "depends_on": [
+      "EDC-003",
+      "EDC-006"
+    ],
+    "summary": "定义 vault:// URI 映射到本地文件系统，封装对象版本、证据、文本、模型输出的读写路径。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/vault/storage.py"
+    ],
+    "acceptance": [
+      "支持 vault://objects、vault://versions、vault://evidence、vault://extracted_text、vault://model_outputs、vault://briefs",
+      "所有写入路径防止目录穿越",
+      "提供 resolve_uri 与 safe_write_json/safe_write_text/safe_copy_file",
+      "文件名中不直接暴露用户敏感原路径"
+    ],
+    "tests": [
+      "pytest tests/vault/test_storage_uri.py"
+    ],
+    "codex_prompt": "请实现 VaultStorage。定义 vault:// URI 到 EGO_DATA_HOME/vault 的映射，支持安全复制文件、写 JSON、写文本、读取文本、校验 URI。必须防止 ../ 路径穿越，不能把用户原始绝对路径作为 Vault 文件名。"
+  },
+  {
+    "id": "EDC-008",
+    "title": "文档解析器 v0：txt/md/pdf/docx",
+    "milestone": "M2 Document Parser",
+    "priority": "P0",
+    "module": "connectors/documents",
+    "depends_on": [
+      "EDC-006",
+      "EDC-007"
+    ],
+    "summary": "对 Object Version 提取文本，生成 extracted_text_uri 和 evidence_text_chunks。",
+    "inputs": [
+      "object_versions"
+    ],
+    "outputs": [
+      "src/ego_data_core/connectors/documents/parser.py"
+    ],
+    "acceptance": [
+      "支持 .txt、.md、.pdf、.docx 基础文本提取",
+      "解析失败不得中断扫描，写 error audit 与 job failure",
+      "按段落/长度分块写 evidence_text_chunks",
+      "chunk 记录 evidence_id、chunk_index、text、char_start/char_end 或 metadata"
+    ],
+    "tests": [
+      "pytest tests/connectors/test_document_parser.py"
+    ],
+    "codex_prompt": "请实现文档解析器 v0。先支持 txt/md/pdf/docx。可用 pypdf、python-docx 等轻量库；库不可用时要优雅降级。把抽取文本写到 vault://extracted_text，并按 800-1200 字符分块写 evidence_text_chunks。"
+  },
+  {
+    "id": "EDC-009",
+    "title": "全文检索最小实现",
+    "milestone": "M2 Document Parser",
+    "priority": "P1",
+    "module": "vault/search",
+    "depends_on": [
+      "EDC-008"
+    ],
+    "summary": "基于 SQLite FTS5 或降级 LIKE 实现本地文本搜索，支持按 evidence、source、date 过滤。",
+    "inputs": [
+      "evidence_text_chunks"
+    ],
+    "outputs": [
+      "src/ego_data_core/vault/search.py",
+      "GET /api/v1/search"
+    ],
+    "acceptance": [
+      "能按关键词返回 chunk、evidence_id、raw_object title、score 或匹配信息",
+      "支持 source_id 和日期过滤",
+      "返回结果不直接暴露未授权路径",
+      "FTS5 不可用时有降级方案"
+    ],
+    "tests": [
+      "pytest tests/vault/test_search.py"
+    ],
+    "codex_prompt": "请实现本地全文检索。优先使用 SQLite FTS5 建立 evidence_chunks_fts；若环境不支持 FTS5，降级为 LIKE 搜索。新增 GET /api/v1/search?q=。返回 evidence_id、chunk_id、snippet、title、captured_at。"
+  },
+  {
+    "id": "EDC-010",
+    "title": "Night Shift Job Queue v0",
+    "milestone": "M3 Enhancement Pipeline",
+    "priority": "P0",
+    "module": "nightshift",
+    "depends_on": [
+      "EDC-001",
+      "EDC-004"
+    ],
+    "summary": "实现 SQLite 驱动的本地任务队列，支持 pending/running/succeeded/failed/blocked/cancelled 和重试。",
+    "inputs": [
+      "jobs 表"
+    ],
+    "outputs": [
+      "src/ego_data_core/nightshift/queue.py",
+      "src/ego_data_core/nightshift/worker.py"
+    ],
+    "acceptance": [
+      "能创建 job，按 priority 和 created_at 拉取",
+      "job 状态转换有审计记录",
+      "失败能记录 error_message 并按 max_retries 重试",
+      "worker 可单进程运行，支持优雅停止"
+    ],
+    "tests": [
+      "pytest tests/nightshift/test_queue.py"
+    ],
+    "codex_prompt": "请实现 Night Shift 本地任务队列。基于 jobs 表提供 create_job、claim_next_job、mark_succeeded、mark_failed、mark_blocked、cancel_job。实现一个简单 worker 循环，可注册 job handler。所有状态变化写 audit。"
+  },
+  {
+    "id": "EDC-011",
+    "title": "Model Router 接口与 RuleBasedAdapter",
+    "milestone": "M3 Enhancement Pipeline",
+    "priority": "P0",
+    "module": "model_router",
+    "depends_on": [
+      "EDC-004"
+    ],
+    "summary": "建立模型适配器接口，先实现 RuleBasedAdapter，保证没有外部模型也能跑通 Demo。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/model_router/base.py",
+      "src/ego_data_core/model_router/rule_based.py",
+      "src/ego_data_core/model_router/service.py"
+    ],
+    "acceptance": [
+      "ModelRouter.run(purpose, input_refs, policy) 可返回结构化输出",
+      "RuleBasedAdapter 支持 summary/tag/task_candidate/risk_candidate 基础输出",
+      "所有调用写 model_invocations",
+      "敏感/critical 数据默认不允许外部调用"
+    ],
+    "tests": [
+      "pytest tests/model_router/test_rule_based.py"
+    ],
+    "codex_prompt": "请实现 Model Router 最小版。定义 ModelAdapter 协议，先写 RuleBasedAdapter，不调用外部 API。它能基于文本 chunk 做简单摘要、关键词标签、待办候选、风险候选。每次调用写 model_invocations 和 audit。"
+  },
+  {
+    "id": "EDC-012",
+    "title": "OllamaAdapter 可选本地模型适配",
+    "milestone": "M3 Enhancement Pipeline",
+    "priority": "P1",
+    "module": "model_router",
+    "depends_on": [
+      "EDC-011"
+    ],
+    "summary": "实现可选 Ollama 本地模型适配器，支持本地模型增强，但系统不能依赖它才能运行。",
+    "inputs": [
+      "OLLAMA_BASE_URL",
+      "OLLAMA_MODEL"
+    ],
+    "outputs": [
+      "src/ego_data_core/model_router/ollama_adapter.py"
+    ],
+    "acceptance": [
+      "Ollama 不存在时系统正常降级 RuleBasedAdapter",
+      "支持超时、错误记录、原始输出保存",
+      "Prompt 不包含超出输入 refs 的数据",
+      "模型输出解析失败时保存原文并标记 error"
+    ],
+    "tests": [
+      "pytest tests/model_router/test_ollama_adapter.py"
+    ],
+    "codex_prompt": "请实现 OllamaAdapter。通过本地 HTTP 调用 Ollama generate/chat 接口，超时可配置。Ollama 不可用时不得影响主流程。所有输入必须来自 ModelRouter 传入的 input_refs，不允许自行读取 Vault 全量数据。"
+  },
+  {
+    "id": "EDC-013",
+    "title": "Enhancement Pipeline：summary/tag",
+    "milestone": "M3 Enhancement Pipeline",
+    "priority": "P0",
+    "module": "twin",
+    "depends_on": [
+      "EDC-008",
+      "EDC-010",
+      "EDC-011"
+    ],
+    "summary": "对 Evidence 生成摘要和标签，写 enhancements 与 evidence 链接。",
+    "inputs": [
+      "evidence_ids"
+    ],
+    "outputs": [
+      "src/ego_data_core/twin/enhance.py",
+      "POST /api/v1/twin/enhance"
+    ],
+    "acceptance": [
+      "POST /twin/enhance 创建 job",
+      "worker 执行后写 enhancements",
+      "每个 enhancement 必须链接至少一个 evidence",
+      "记录 model_invocation_id、prompt_hash、confidence、status",
+      "可查询 evidence 的 enhancement 列表"
+    ],
+    "tests": [
+      "pytest tests/twin/test_enhance_summary_tag.py"
+    ],
+    "codex_prompt": "请实现 Enhancement Pipeline 最小版。支持 enhancement_type=summary/tag。API 创建 job，worker 读取 evidence_text_chunks，调用 ModelRouter，写 enhancements 与 enhancement_evidence_links。必须保持 evidence-first，可追溯。"
+  },
+  {
+    "id": "EDC-014",
+    "title": "Project Discovery v0",
+    "milestone": "M4 Work Graph",
+    "priority": "P1",
+    "module": "workgraph",
+    "depends_on": [
+      "EDC-013"
+    ],
+    "summary": "基于目录、文件名、标签和摘要生成项目候选，允许用户确认/驳回。",
+    "inputs": [
+      "raw_objects",
+      "enhancements"
+    ],
+    "outputs": [
+      "src/ego_data_core/workgraph/project_discovery.py",
+      "POST /api/v1/projects/discover"
+    ],
+    "acceptance": [
+      "能生成 project candidates 并写 projects 表或候选状态",
+      "能把 evidence 链接到 project",
+      "用户可 confirm/reject/edit",
+      "被驳回项目不应反复出现，除非 force_regenerate"
+    ],
+    "tests": [
+      "pytest tests/workgraph/test_project_discovery.py"
+    ],
+    "codex_prompt": "请实现 Project Discovery v0。使用规则优先：目录名、文件名前缀、标签相似度、日期聚类。生成项目候选并链接 evidence。提供用户反馈接口 confirm/reject/edit。不要把模型推断当事实，所有项目关系标记 confidence。"
+  },
+  {
+    "id": "EDC-015",
+    "title": "Task / Question / Risk 提取 v0",
+    "milestone": "M4 Work Graph",
+    "priority": "P1",
+    "module": "workgraph",
+    "depends_on": [
+      "EDC-013",
+      "EDC-014"
+    ],
+    "summary": "从增强数据和文本块中提取待办、未决问题、风险项，全部保持证据链接。",
+    "inputs": [
+      "enhancements",
+      "evidence_text_chunks"
+    ],
+    "outputs": [
+      "src/ego_data_core/workgraph/extractors.py"
+    ],
+    "acceptance": [
+      "能生成 tasks/questions/risks",
+      "每个对象至少关联一个 evidence",
+      "状态默认为 proposed，用户确认后变 confirmed",
+      "支持 feedback：confirm/reject/edit/later/convert_to_task"
+    ],
+    "tests": [
+      "pytest tests/workgraph/test_extractors.py"
+    ],
+    "codex_prompt": "请实现 Task/Question/Risk 提取 v0。先用规则和 RuleBasedAdapter，从文本中发现“需要/待/风险/问题/不确定/下一步”等线索。写入对应表，并建立 evidence_links。输出必须带 confidence 和 proposed 状态。"
+  },
+  {
+    "id": "EDC-016",
+    "title": "Automation Opportunity 发现 v0",
+    "milestone": "M4 Work Graph",
+    "priority": "P2",
+    "module": "workgraph/operator",
+    "depends_on": [
+      "EDC-015"
+    ],
+    "summary": "基于文件变化、重复文件模式和用户反馈生成低风险自动化机会。",
+    "inputs": [
+      "raw_objects",
+      "events",
+      "tasks"
+    ],
+    "outputs": [
+      "src/ego_data_core/workgraph/automation_opportunities.py"
+    ],
+    "acceptance": [
+      "能生成 automation_opportunities",
+      "每个机会包含风险等级、建议动作、所需授权",
+      "默认只生成建议，不执行",
+      "移动/删除/发送/上传类建议必须标记 high risk"
+    ],
+    "tests": [
+      "pytest tests/workgraph/test_automation_opportunities.py"
+    ],
+    "codex_prompt": "请实现自动化机会发现 v0。先发现重复文件、待整理下载目录、同项目文件分散等低风险机会。只生成 action proposal，不直接执行。所有建议都要写 evidence link、risk_level、required_authorization。"
+  },
+  {
+    "id": "EDC-017",
+    "title": "Daily Brief 生成器 v0",
+    "milestone": "M5 Daily Brief",
+    "priority": "P0",
+    "module": "brief",
+    "depends_on": [
+      "EDC-013",
+      "EDC-015"
+    ],
+    "summary": "按日期生成 Ego Daily Brief，包含新增资料、项目动态、待办、问题、风险、自动化建议。",
+    "inputs": [
+      "evidence",
+      "enhancements",
+      "projects",
+      "tasks",
+      "questions",
+      "risks",
+      "automation_opportunities"
+    ],
+    "outputs": [
+      "src/ego_data_core/brief/daily.py",
+      "POST /briefs/generate",
+      "GET /briefs/daily/latest"
+    ],
+    "acceptance": [
+      "能按日期生成 report 和 report_items",
+      "每个 report_item 必须至少有一个 evidence 或 system audit reference，纯系统项除外",
+      "Brief 可导出 Markdown 到 vault://briefs",
+      "用户可对 item 反馈 confirm/reject/later/convert_to_task",
+      "没有足够数据时生成清晰的数据健康提示，而不是编造内容"
+    ],
+    "tests": [
+      "pytest tests/brief/test_daily_brief.py"
+    ],
+    "codex_prompt": "请实现 Daily Brief 生成器 v0。输入 date，聚合当天新增 evidence、summary/tag、tasks/questions/risks、automation_opportunities。生成 report/report_items 并导出 Markdown。原则：没有证据就不写结论；不确定则用“可能/建议核对”。"
+  },
+  {
+    "id": "EDC-018",
+    "title": "Markdown 导出器与证据引用格式",
+    "milestone": "M5 Daily Brief",
+    "priority": "P0",
+    "module": "brief/vault",
+    "depends_on": [
+      "EDC-017",
+      "EDC-007"
+    ],
+    "summary": "将 Brief、Project Brief 导出为 Markdown，并用稳定格式引用 Evidence。",
+    "inputs": [
+      "reports",
+      "report_items",
+      "evidence_links"
+    ],
+    "outputs": [
+      "src/ego_data_core/brief/export_markdown.py"
+    ],
+    "acceptance": [
+      "导出文件包含 title、date、summary、sections、evidence references",
+      "证据引用格式统一为 [ev_xxx] title/path/time",
+      "不暴露敏感绝对路径，除非本地 UI 用户主动展开",
+      "导出文件写入 vault://briefs"
+    ],
+    "tests": [
+      "pytest tests/brief/test_markdown_export.py"
+    ],
+    "codex_prompt": "请实现 Brief Markdown 导出。输出每日简报，要求每个条目带证据引用，如 Evidence: [ev_...] 文件名 · 时间 · 摘要。不要在 Markdown 中直接泄露用户绝对路径，可显示相对标签或标题。"
+  },
+  {
+    "id": "EDC-019",
+    "title": "本地 Web UI 最小版",
+    "milestone": "M5 Daily Brief",
+    "priority": "P1",
+    "module": "ui",
+    "depends_on": [
+      "EDC-017",
+      "EDC-005",
+      "EDC-009"
+    ],
+    "summary": "提供本地浏览器界面查看 Sources、Evidence、Search、Daily Brief、Audit。",
+    "inputs": [
+      "Local API"
+    ],
+    "outputs": [
+      "ui/ 或 src/ego_data_core/ui/static"
+    ],
+    "acceptance": [
+      "打开 http://127.0.0.1:8765 可看到本地 UI",
+      "可查看最新 Daily Brief",
+      "可查看 Evidence 列表与搜索",
+      "可查看审计日志",
+      "界面明确显示 Local-first 与数据源授权状态"
+    ],
+    "tests": [
+      "pytest tests/api/test_static_ui.py 或 Playwright smoke test"
+    ],
+    "codex_prompt": "请实现本地 Web UI 最小版。可以使用 FastAPI 静态页面 + 原生 JS，不必引入复杂前端框架。页面包含：Dashboard、Sources、Search、Brief、Audit。UI 只连接本地 API。"
+  },
+  {
+    "id": "EDC-020",
+    "title": "Safety Kernel：隐私等级与外部调用策略",
+    "milestone": "M3 Enhancement Pipeline",
+    "priority": "P0",
+    "module": "safety",
+    "depends_on": [
+      "EDC-011",
+      "EDC-004"
+    ],
+    "summary": "根据 public/private/sensitive/critical 决定模型调用、上下文输出和动作授权。",
+    "inputs": [
+      "privacy_level",
+      "policy_json"
+    ],
+    "outputs": [
+      "src/ego_data_core/safety/policy.py"
+    ],
+    "acceptance": [
+      "critical 默认禁止模型读取，除非显式逐次授权",
+      "sensitive 默认仅本地模型/规则",
+      "private 默认本地，外部需策略允许",
+      "public 可外部处理但仍需记录",
+      "策略拦截写 policy_blocked audit"
+    ],
+    "tests": [
+      "pytest tests/safety/test_policy.py"
+    ],
+    "codex_prompt": "请实现 Safety Kernel 的隐私策略判断。提供 can_use_external_model、can_include_evidence_in_context、requires_authorization。严格遵守 critical/sensitive/private/public 默认策略。任何阻断写 audit。"
+  },
+  {
+    "id": "EDC-021",
+    "title": "Operator Bridge：Action Plan Dry-run",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P1",
+    "module": "operator",
+    "depends_on": [
+      "EDC-016",
+      "EDC-020"
+    ],
+    "summary": "预留物理操作执行接口，v0.1 先支持 Action Plan、授权和 dry_run，不真正操作电脑。",
+    "inputs": [
+      "automation_opportunities"
+    ],
+    "outputs": [
+      "src/ego_data_core/operator/bridge.py",
+      "actions API"
+    ],
+    "acceptance": [
+      "POST /actions/propose 可创建 action_plan",
+      "授权前 execute 返回 requires_authorization",
+      "dry_run 生成步骤和风险说明",
+      "高风险动作必须用户授权",
+      "所有 propose/authorize/execute 写 audit"
+    ],
+    "tests": [
+      "pytest tests/operator/test_action_dry_run.py"
+    ],
+    "codex_prompt": "请实现 Operator Bridge dry-run。它不实际控制电脑，只生成 action_plan、required_authorization、dry_run_steps。实现 /actions/propose、/actions/{id}/authorize、/actions/{id}/execute。没有授权不得执行。"
+  },
+  {
+    "id": "EDC-022",
+    "title": "屏幕采集 Connector v0：手动截图入库",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P1",
+    "module": "connectors/screen",
+    "depends_on": [
+      "EDC-005",
+      "EDC-007"
+    ],
+    "summary": "v0.1 先实现手动上传/本机截图导入，生成 screenshot evidence，为未来 HDMI 采集预留接口。",
+    "inputs": [
+      "image file or screenshot API"
+    ],
+    "outputs": [
+      "src/ego_data_core/connectors/screen/capture.py"
+    ],
+    "acceptance": [
+      "可通过 API 或 CLI 导入 screenshot",
+      "生成 raw_object/object_version/evidence，evidence_type=screenshot",
+      "记录 active_window/app_name 可选 metadata",
+      "不做全天候录屏"
+    ],
+    "tests": [
+      "pytest tests/connectors/test_screen_capture.py"
+    ],
+    "codex_prompt": "请实现屏幕采集 Connector v0。先支持导入已有图片文件作为 screenshot evidence；可选支持 PIL/ImageGrab 在桌面环境截图。为 HDMI 采集保留接口类，但不要实现设备驱动。"
+  },
+  {
+    "id": "EDC-023",
+    "title": "Screenshot OCR Enhancement v0",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P1",
+    "module": "twin/screen",
+    "depends_on": [
+      "EDC-022",
+      "EDC-013"
+    ],
+    "summary": "对 screenshot evidence 生成 OCR 文本增强，先支持可选 OCR；OCR 不可用时生成占位 enhancement。",
+    "inputs": [
+      "screenshot evidence"
+    ],
+    "outputs": [
+      "ocr_text enhancement",
+      "screen_state enhancement"
+    ],
+    "acceptance": [
+      "支持 OCR adapter 接口",
+      "没有 OCR 环境时不崩溃，写 unsupported 状态",
+      "OCR 输出必须链接 screenshot evidence",
+      "保留坐标/区域 metadata 结构"
+    ],
+    "tests": [
+      "pytest tests/twin/test_screenshot_ocr.py"
+    ],
+    "codex_prompt": "请实现 Screenshot OCR Enhancement v0。定义 OCRAdapter 接口，可先写 MockOCRAdapter 或 EasyOCR/PaddleOCR 可选适配。OCR 输出写 enhancement，包含 text 和可选 boxes。不可用时写 status=unsupported，不影响其他流程。"
+  },
+  {
+    "id": "EDC-024",
+    "title": "Compute Fabric 节点注册 v0",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P2",
+    "module": "compute_fabric",
+    "depends_on": [
+      "EDC-001"
+    ],
+    "summary": "注册本机、局域网服务器、外部模型节点的能力信息，为后续分层调度打基础。",
+    "inputs": [
+      "devices",
+      "compute_nodes"
+    ],
+    "outputs": [
+      "src/ego_data_core/compute_fabric/nodes.py",
+      "GET/POST /compute/nodes"
+    ],
+    "acceptance": [
+      "可手动注册 compute node",
+      "记录 CPU/GPU/NPU/内存/模型/信任等级/能耗估算",
+      "Model Router 可读取节点能力",
+      "外部节点默认不可处理 sensitive/critical"
+    ],
+    "tests": [
+      "pytest tests/compute_fabric/test_nodes.py"
+    ],
+    "codex_prompt": "请实现 Compute Fabric 节点注册 v0。可手动注册本机、本地服务器、外部 API 节点，记录 capabilities_json、trust_level、cost_profile、energy_profile。暂不实现自动发现。"
+  },
+  {
+    "id": "EDC-025",
+    "title": "CLI 工具：扫描、增强、生成 Brief",
+    "milestone": "M5 Daily Brief",
+    "priority": "P1",
+    "module": "cli",
+    "depends_on": [
+      "EDC-006",
+      "EDC-013",
+      "EDC-017"
+    ],
+    "summary": "提供无需 UI 的命令行入口，方便测试与演示。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/cli.py"
+    ],
+    "acceptance": [
+      "ego init-db",
+      "ego source add <path>",
+      "ego scan <source_id>",
+      "ego enhance --date YYYY-MM-DD",
+      "ego brief daily --date YYYY-MM-DD",
+      "命令失败返回非零 exit code 并写日志"
+    ],
+    "tests": [
+      "pytest tests/cli/test_cli.py"
+    ],
+    "codex_prompt": "请实现 CLI。使用 typer 或 argparse。提供 init-db、source add、scan、enhance、brief daily、audit tail。CLI 用于本地 Demo，所有命令调用同一 service 层，不绕过业务逻辑。"
+  },
+  {
+    "id": "EDC-026",
+    "title": "Demo Seed 数据与一键演示脚本",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P0",
+    "module": "demo",
+    "depends_on": [
+      "EDC-017",
+      "EDC-025"
+    ],
+    "summary": "构造可公开展示的样例数据，一键跑通扫描、增强、Work Graph、Daily Brief。",
+    "inputs": [
+      "sample_docs/"
+    ],
+    "outputs": [
+      "demo/sample_workspace/",
+      "scripts/run_demo.sh",
+      "docs/demo_script.md"
+    ],
+    "acceptance": [
+      "全新环境执行 scripts/run_demo.sh 可生成 Daily Brief",
+      "Demo 数据不包含真实隐私",
+      "输出 Brief 中每个条目都有 Evidence 引用",
+      "5 分钟内可以演示产品核心闭环"
+    ],
+    "tests": [
+      "bash scripts/run_demo.sh",
+      "pytest tests/demo/test_demo_smoke.py"
+    ],
+    "codex_prompt": "请创建 Demo Seed 数据和一键演示脚本。构造一个 sample_workspace，包含 Ego 项目计划、会议纪要、报价草案、待办清单、重复文件。run_demo.sh 完成 init-db、add source、scan、enhance、discover、brief，最后打印 Brief Markdown 路径。"
+  },
+  {
+    "id": "EDC-027",
+    "title": "数据健康检查 Data Health",
+    "milestone": "M5 Daily Brief",
+    "priority": "P2",
+    "module": "brief/data_health",
+    "depends_on": [
+      "EDC-017"
+    ],
+    "summary": "在 Daily Brief 中加入数据覆盖度、解析失败、未增强证据、隐私阻断等系统健康信息。",
+    "inputs": [
+      "jobs",
+      "evidence",
+      "enhancements",
+      "audit"
+    ],
+    "outputs": [
+      "data_health report_items"
+    ],
+    "acceptance": [
+      "显示新增文件数量、解析成功率、增强完成率",
+      "显示失败 job 和可重试建议",
+      "显示被隐私策略阻断的外部调用次数",
+      "没有数据时给出下一步配置建议"
+    ],
+    "tests": [
+      "pytest tests/brief/test_data_health.py"
+    ],
+    "codex_prompt": "请实现 Data Health 汇报项。Daily Brief 中加入系统状态：新增 evidence 数、解析失败数、enhancement 完成率、policy_blocked 数、待处理 job 数、建议用户新增数据源或授权。"
+  },
+  {
+    "id": "EDC-028",
+    "title": "错误处理与日志规范",
+    "milestone": "M0 Project Foundation",
+    "priority": "P0",
+    "module": "kernel/logging",
+    "depends_on": [
+      "EDC-000",
+      "EDC-004"
+    ],
+    "summary": "统一异常类型、日志格式和错误响应，避免后台任务静默失败。",
+    "inputs": [],
+    "outputs": [
+      "src/ego_data_core/kernel/errors.py",
+      "src/ego_data_core/kernel/logging.py"
+    ],
+    "acceptance": [
+      "API 错误返回稳定 JSON：code/message/request_id",
+      "后台 job 错误写 jobs.error_message 和 audit",
+      "日志不输出完整敏感文本，只输出 ID/摘要",
+      "有全局 FastAPI exception handler"
+    ],
+    "tests": [
+      "pytest tests/kernel/test_errors.py"
+    ],
+    "codex_prompt": "请实现统一错误处理与日志。定义 EgoError 基类和子类：PolicyBlockedError、NotFoundError、ValidationError、ConnectorError、ModelError、StorageError。API 返回稳定 JSON。日志中避免输出用户原文内容。"
+  },
+  {
+    "id": "EDC-029",
+    "title": "测试基座与临时工作区 Fixture",
+    "milestone": "M0 Project Foundation",
+    "priority": "P0",
+    "module": "tests",
+    "depends_on": [
+      "EDC-000",
+      "EDC-001"
+    ],
+    "summary": "建立 pytest fixture：临时 EGO_DATA_HOME、内存/临时 SQLite、样例文件、测试客户端。",
+    "inputs": [],
+    "outputs": [
+      "tests/conftest.py",
+      "tests/fixtures/"
+    ],
+    "acceptance": [
+      "每个测试用例隔离数据目录",
+      "测试不会读写用户真实目录",
+      "API TestClient 可复用",
+      "提供 sample txt/md/docx/pdf 或可跳过 pdf/docx 依赖"
+    ],
+    "tests": [
+      "pytest"
+    ],
+    "codex_prompt": "请建立 pytest 测试基座。conftest 提供 tmp_data_home、db_path、client、sample_workspace fixtures。所有测试必须使用临时目录，严禁读写真实用户目录。"
+  },
+  {
+    "id": "EDC-030",
+    "title": "OpenAPI 同步与契约测试",
+    "milestone": "M6 Operator Bridge + Demo",
+    "priority": "P1",
+    "module": "api",
+    "depends_on": [
+      "EDC-017",
+      "EDC-021"
+    ],
+    "summary": "确保实现 API 与 openapi.yaml 草案一致，并生成本地 OpenAPI 文档。",
+    "inputs": [
+      "ego_data_core_v0_1_openapi.yaml"
+    ],
+    "outputs": [
+      "docs/api_contract.md",
+      "tests/api/test_openapi_contract.py"
+    ],
+    "acceptance": [
+      "FastAPI /openapi.json 可访问",
+      "核心路径与草案一致或有差异说明",
+      "契约测试覆盖 health/sources/vault/twin/briefs/actions/audit",
+      "README 标明 API 仍为 v0.1 local API"
+    ],
+    "tests": [
+      "pytest tests/api/test_openapi_contract.py"
+    ],
+    "codex_prompt": "请实现 OpenAPI 契约测试。读取现有草案，校验实现中的核心路径存在。若字段不完全一致，在 docs/api_contract.md 中列差异和原因。FastAPI 自动生成 /openapi.json。"
+  }
+]

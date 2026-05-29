@@ -1,0 +1,105 @@
+ego-data-core/
+├── README.md
+├── pyproject.toml
+├── .env.example
+├── .gitignore
+├── docs/
+│   ├── product_definition.md
+│   ├── technical_architecture.md
+│   ├── api_contract.md
+│   ├── demo_script.md
+│   └── security_and_privacy.md
+├── scripts/
+│   ├── init_db.py
+│   ├── run_worker.py
+│   ├── run_demo.sh
+│   └── export_brief.py
+├── demo/
+│   └── sample_workspace/
+├── storage/
+│   └── migrations/
+│       └── 001_init.sql
+├── src/
+│   └── ego_data_core/
+│       ├── __init__.py
+│       ├── main.py
+│       ├── cli.py
+│       ├── api/
+│       │   ├── app.py
+│       │   ├── deps.py
+│       │   └── routes/
+│       │       ├── health.py
+│       │       ├── sources.py
+│       │       ├── vault.py
+│       │       ├── twin.py
+│       │       ├── projects.py
+│       │       ├── briefs.py
+│       │       ├── actions.py
+│       │       ├── audit.py
+│       │       └── search.py
+│       ├── kernel/
+│       │   ├── config.py
+│       │   ├── id_generator.py
+│       │   ├── errors.py
+│       │   ├── logging.py
+│       │   └── time.py
+│       ├── storage/
+│       │   ├── db.py
+│       │   ├── migrations.py
+│       │   └── repositories/
+│       ├── safety/
+│       │   └── policy.py
+│       ├── audit/
+│       │   └── service.py
+│       ├── connectors/
+│       │   ├── source_service.py
+│       │   ├── filesystem/
+│       │   │   └── scanner.py
+│       │   ├── documents/
+│       │   │   └── parser.py
+│       │   └── screen/
+│       │       └── capture.py
+│       ├── vault/
+│       │   ├── storage.py
+│       │   ├── ingest.py
+│       │   └── search.py
+│       ├── twin/
+│       │   ├── enhance.py
+│       │   └── screenshot_ocr.py
+│       ├── workgraph/
+│       │   ├── project_discovery.py
+│       │   ├── extractors.py
+│       │   └── automation_opportunities.py
+│       ├── brief/
+│       │   ├── daily.py
+│       │   ├── export_markdown.py
+│       │   └── data_health.py
+│       ├── nightshift/
+│       │   ├── queue.py
+│       │   └── worker.py
+│       ├── model_router/
+│       │   ├── base.py
+│       │   ├── service.py
+│       │   ├── rule_based.py
+│       │   └── ollama_adapter.py
+│       ├── compute_fabric/
+│       │   └── nodes.py
+│       ├── operator/
+│       │   └── bridge.py
+│       └── ui/
+│           └── static/
+└── tests/
+    ├── conftest.py
+    ├── api/
+    ├── audit/
+    ├── brief/
+    ├── connectors/
+    ├── kernel/
+    ├── model_router/
+    ├── nightshift/
+    ├── operator/
+    ├── safety/
+    ├── storage/
+    ├── twin/
+    ├── vault/
+    └── workgraph/

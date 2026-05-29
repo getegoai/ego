@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-05-29  
-**Branch**: `main`  
-**Current phase**: repository bootstrap  
-**Active issue**: none; next recommended issue is `EDC-000`
+**Last updated**: 2026-05-29
+**Branch**: `main`
+**Current phase**: M0 Project Foundation
+**Active issue**: none; next recommended issue is `EDC-001`
 
 ## Collaboration Model
 
@@ -41,7 +41,7 @@ Each implementation commit should include the relevant tests unless splitting is
 |---|---|---|
 | Git repository | Done | Initialized on `main`; design baseline committed. |
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
-| Project skeleton | Not started | Next: `EDC-000`. |
+| Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Not started | `EDC-001`; schema already validates in SQLite memory check. |
 | ID/config/test foundation | Not started | `EDC-002`, `EDC-003`, `EDC-029`. |
 | Audit/source/vault scan | Not started | M1 chain after DB foundation. |
@@ -49,6 +49,41 @@ Each implementation commit should include the relevant tests unless splitting is
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
+
+## Latest Iteration
+
+### EDC-000 - Project Foundation
+
+Status: completed.
+
+Position in the project:
+
+- This iteration turns the repo from a docs-only baseline into a runnable Python/FastAPI project.
+- It creates the foundation needed by all later issues: imports, package metadata, API app factory, route layout, test entry point, and local startup commands.
+
+What changed:
+
+- Added `pyproject.toml` with FastAPI, Uvicorn, pytest, and httpx dev dependencies.
+- Added `src/ego_data_core/` using the planned module boundaries.
+- Added `GET /api/v1/health` with version and database status.
+- Added `README.md`, `.env.example`, and non-destructive `scripts/init_db.py` placeholder.
+- Added `tests/test_health.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/test_health.py` passed.
+- `.venv\Scripts\python scripts\init_db.py` confirmed no files were modified.
+- `.venv\Scripts\python -m ego_data_core.main` started the API.
+- `GET http://127.0.0.1:8765/api/v1/health` returned `ok`, version `0.1.0`, and database status `not_configured`.
+
+Issues handled:
+
+- The system Python did not have `pytest`; a local `.venv` was created and dependencies were installed there.
+- Uvicorn did not stop cleanly from the TTY during smoke testing; the smoke-test process was stopped by PID after the health check succeeded.
+
+Next iteration:
+
+- Start `EDC-001`: add SQLite initialization and migration management using `docs/ego_data_core_v0_1_schema.sqlite.sql`.
 
 ## Near-Term Execution Order
 

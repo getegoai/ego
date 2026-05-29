@@ -24,15 +24,15 @@ env/
 !.env.example
 
 # Ego local runtime data
-.ego/
-.ego_data_core/
-vault/
-db/
-audit/
-logs/
-cache/
-exports/
-backups/
+/.ego/
+/.ego_data_core/
+/vault/
+/db/
+/audit/
+/logs/
+/cache/
+/exports/
+/backups/
 *.sqlite
 *.sqlite3
 *.db

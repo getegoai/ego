@@ -6,10 +6,12 @@ from collections.abc import Callable, Mapping
 import time
 from typing import Any
 
+from ego_data_core.kernel.logging import get_logger, log_exception, safe_error_message
 from ego_data_core.nightshift.queue import JobRecord, NightShiftQueue
 
 
 JobHandler = Callable[[JobRecord], Mapping[str, Any] | None]
+logger = get_logger(__name__)
 
 
 class NightShiftWorker:
@@ -50,7 +52,17 @@ class NightShiftWorker:
         try:
             output = handler(job)
         except Exception as exc:
-            self.queue.mark_failed(job.job_id, str(exc))
+            log_exception(
+                logger,
+                "Night Shift job failed",
+                exc,
+                context={
+                    "job_id": job.job_id,
+                    "job_type": job.job_type,
+                    "input": job.input,
+                },
+            )
+            self.queue.mark_failed(job.job_id, safe_error_message(exc))
             return True
 
         self.queue.mark_succeeded(job.job_id, output or {})

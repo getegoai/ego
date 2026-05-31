@@ -3,7 +3,7 @@
 **Last updated**: 2026-06-01
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-028`
+**Active issue**: none; next recommended issue is `EDC-020`
 
 ## Collaboration Model
 
@@ -43,7 +43,7 @@ Each implementation commit should include the relevant tests unless splitting is
 | Design docs | Done | Existing v0.1 docs committed unchanged. |
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
-| ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
+| ID/config/test foundation | Done | `EDC-002`, `EDC-003`, `EDC-028`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
@@ -51,6 +51,39 @@ Each implementation commit should include the relevant tests unless splitting is
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-028 - Unified Errors and Logging
+
+Status: completed.
+
+Position in the project:
+
+- This improves the reliability layer underneath API, CLI, and background jobs.
+- It makes API failures predictable for future UI/CLI clients by returning stable JSON with `code`, `message`, and `request_id`.
+- It adds a small logging safety layer so internal logs can keep IDs and operational context without dumping raw text fields.
+
+What changed:
+
+- Added `src/ego_data_core/kernel/errors.py`.
+- Added `src/ego_data_core/kernel/logging.py`.
+- Added `EgoError` plus `PolicyBlockedError`, `NotFoundError`, `ValidationError`, `ConnectorError`, `ModelError`, and `StorageError`.
+- Added FastAPI exception handlers for Ego errors, request validation errors, `ValueError`, HTTP exceptions, and unhandled exceptions.
+- API error responses now include stable `code`, `message`, and `request_id`; `x-request-id` is preserved when supplied.
+- Night Shift worker failures now use a safe error message and log redacted job context.
+- Added `tests/kernel/test_errors.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/kernel/test_errors.py tests/api/test_sources.py tests/test_health.py tests/nightshift/test_queue.py` passed with 19 tests.
+
+Issues handled:
+
+- Existing services still raise some `ValueError`s. The API layer now normalizes those into stable `validation_error` responses while deeper service-specific errors can migrate to `EgoError` subclasses over time.
+- Log redaction is conservative: fields such as `text`, `body`, `prompt`, `input`, and `output` are replaced with size markers while IDs remain visible.
+
+Next iteration:
+
+- Start `EDC-020`: Safety Kernel. Now that error responses and policy-block audit handling are stable, the privacy policy rules can be pulled out of Model Router into a shared safety layer.
 
 ### EDC-027 - Daily Brief Data Health
 

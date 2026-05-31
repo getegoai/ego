@@ -61,6 +61,15 @@ python -m ego_data_core.cli brief daily --date 2026-05-31
 The database and vault are stored under `EGO_DATA_HOME` when set, or under
 `~/.ego_data_core` by default.
 
+## Run The Demo
+
+```powershell
+python scripts/run_demo.py
+```
+
+The demo uses synthetic files in `demo/sample_workspace` and prints the generated
+Daily Brief `markdown_path`.
+
 Supported profiles:
 
 ```powershell

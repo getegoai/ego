@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-026`
+**Active issue**: none; next recommended issue is `EDC-027`
 
 ## Collaboration Model
 
@@ -48,9 +48,43 @@ Each implementation commit should include the relevant tests unless splitting is
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
 | Work graph and brief | In progress | `EDC-014`, `EDC-015`, `EDC-017`, and `EDC-018` completed; data health still pending as `EDC-027`. |
-| CLI/demo | In progress | `EDC-025` completed; next recommended issue is `EDC-026` demo seed and one-command script. |
+| CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-026 - Demo Seed Data and One-Command Script
+
+Status: completed.
+
+Position in the project:
+
+- This is the first product-level demo path.
+- It lets a fresh local environment generate an evidence-backed Daily Brief without requiring a real private folder.
+- It makes the current state easier to validate: the user can inspect one generated Markdown file and trace each factual item back to evidence.
+
+What changed:
+
+- Added synthetic demo files under `demo/sample_workspace/`.
+- Included project plan, meeting notes, quote draft, todo list, and a duplicate file.
+- Added `scripts/run_demo.py`.
+- Added `scripts/run_demo.sh`.
+- Added `docs/demo_script.md`.
+- Updated `README.md` with the demo command.
+- Added `tests/demo/test_demo_smoke.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/demo/test_demo_smoke.py` passed with 1 test.
+
+Issues handled:
+
+- The taskbook asks for `scripts/run_demo.sh`; because this development machine is Windows, `scripts/run_demo.py` is the cross-platform implementation and `run_demo.sh` is a thin shell wrapper.
+- Demo data is synthetic and intentionally avoids real private paths or personal content.
+- The smoke test verifies that generated Markdown includes evidence references and does not expose the sample workspace absolute path.
+
+Next iteration:
+
+- Start `EDC-027`: Daily Brief Data Health. This should make the brief explain coverage, parse failures, missing enhancements, blocked jobs, and recommended next actions.
 
 ### EDC-025 - CLI Tools: Scan, Enhance, Generate Brief
 

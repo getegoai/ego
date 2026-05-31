@@ -1,0 +1,6 @@
+Ego demo todo list
+
+- Next step: add CLI commands for scan, enhance, and brief generation.
+- Next step: create a sample workspace with non-private demo files.
+- Question: should the demo include duplicate files to show content hashing?
+- Risk: too many manual setup steps could make the demo fragile.

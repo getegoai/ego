@@ -1,0 +1,9 @@
+Ego demo meeting notes
+
+Decision: use Markdown briefs as the first product surface.
+
+Next step: review the generated brief with the operator and collect feedback.
+
+Question: how should rejected project candidates be shown in the first UI?
+
+Risk: adding UI too early could slow down validation of the core data loop.

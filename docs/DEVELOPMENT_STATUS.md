@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-05-29
+**Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-005`
+**Active issue**: none; next recommended issue is `EDC-006`
 
 ## Collaboration Model
 
@@ -44,13 +44,45 @@ Each implementation commit should include the relevant tests unless splitting is
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
-| Audit/source/vault scan | In progress | `EDC-004` completed; next `EDC-005`, `EDC-006`, `EDC-007`. |
+| Audit/source/vault scan | In progress | `EDC-004` and `EDC-005` completed; next `EDC-006`, then `EDC-007`. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-005 - Source Management API
+
+Status: completed.
+
+Position in the project:
+
+- This is the first user-visible data setup step. Ego can now register an authorized data source before any scanner touches files.
+- It connects the control-plane work from previous iterations: Source records go into SQLite and creation is written to Audit.
+
+What changed:
+
+- Added `src/ego_data_core/connectors/source_service.py`.
+- Added `GET /api/v1/sources` and `POST /api/v1/sources`.
+- Source creation supports `source_type`, `name`, `root_uri`, `privacy_level`, `scan_policy`, and `retention_policy`.
+- `privacy_level` defaults to `private`.
+- `POST /sources` creates a local default user if no user exists yet, keeping the app single-user without adding authentication scope.
+- `POST /sources` writes a `source_created` audit event.
+- Added `tests/api/test_sources.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/api/test_sources.py` passed.
+
+Issues handled:
+
+- The OpenAPI create-source request does not include `user_id`, while the schema requires one. For v0.1 local single-user mode, the service ensures a local default user and attaches sources to it.
+- This issue intentionally does not scan or read the configured `root_uri`; it only records authorization intent.
+
+Next iteration:
+
+- Start `EDC-006`: filesystem scanner v0. This is the first real data-ingestion step: read an authorized source directory, hash files, and create Raw Object / Version / Evidence records without modifying user files.
 
 ### EDC-004 - Audit Log Minimal Implementation
 

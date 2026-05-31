@@ -25,6 +25,7 @@ dev = [
 ]
 
 [project.scripts]
+ego = "ego_data_core.cli:main"
 ego-data-core = "ego_data_core.main:main"
 
 [tool.pytest.ini_options]

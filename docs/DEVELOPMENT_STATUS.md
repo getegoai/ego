@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-025`
+**Active issue**: none; next recommended issue is `EDC-026`
 
 ## Collaboration Model
 
@@ -47,10 +47,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | In progress | `EDC-014`, `EDC-015`, `EDC-017`, and `EDC-018` completed; next visible-control layer is CLI. |
-| CLI/demo | Not started | Next recommended issue is `EDC-025`; CLI before UI for early demo speed. |
+| Work graph and brief | In progress | `EDC-014`, `EDC-015`, `EDC-017`, and `EDC-018` completed; data health still pending as `EDC-027`. |
+| CLI/demo | In progress | `EDC-025` completed; next recommended issue is `EDC-026` demo seed and one-command script. |
 
 ## Latest Iteration
+
+### EDC-025 - CLI Tools: Scan, Enhance, Generate Brief
+
+Status: completed.
+
+Position in the project:
+
+- This is the first practical operator surface for local validation.
+- It lets a user run the core loop without reading code or calling FastAPI directly.
+- It intentionally comes before UI because it is faster to test, easier to automate, and enough for the first demo loop.
+
+What changed:
+
+- Added `src/ego_data_core/cli.py` using the standard library `argparse`.
+- Added the `ego` console script in `pyproject.toml`.
+- Added `ego init-db`.
+- Added `ego source add <path>` and `ego source list`.
+- Added `ego scan <source_id>`, which scans and parses unparsed document versions.
+- Added `ego enhance --date YYYY-MM-DD --type tag|summary`, which creates and runs an enhancement job through Night Shift.
+- Added `ego brief daily --date YYYY-MM-DD`, which refreshes Project Discovery and Work Item extraction before generating the Daily Brief.
+- Added `ego audit tail`.
+- Updated `README.md` with a CLI verification loop.
+- Added `tests/cli/test_cli.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/cli/test_cli.py` passed with 3 tests.
+
+Issues handled:
+
+- The taskbook lists `scan`, `enhance`, and `brief daily` but not a separate parse command. For a usable local loop, `ego scan` also parses unparsed document versions.
+- `ego brief daily` refreshes Work Graph by default so the brief contains project/task/question/risk context without requiring hidden extra commands. `--skip-workgraph` exists for cases where the user wants report-only behavior.
+- CLI errors return non-zero and write the error message to stderr.
+
+Next iteration:
+
+- Start `EDC-026`: demo seed data and one-command demo script. This should give the user the clearest possible product-level validation path.
 
 ### EDC-018 - Markdown Exporter and Evidence Reference Format
 

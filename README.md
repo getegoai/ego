@@ -2,7 +2,9 @@
 
 Ego Data Core v0.1 is a local-first, evidence-first personal data core.
 
-This repository is currently in `EDC-000`: project foundation. The implemented surface is intentionally small: a FastAPI application skeleton and a health endpoint. Database migrations, vault ingest, source scanning, model routing, and brief generation are later EDC issues.
+The current development build can scan a local folder, store evidence in the
+vault, parse document text, generate rule-based enhancements, discover work
+graph items, and export an evidence-backed Daily Brief as Markdown.
 
 ## Requirements
 
@@ -35,14 +37,29 @@ Health check:
 Invoke-RestMethod http://127.0.0.1:8765/api/v1/health
 ```
 
-## Initialize The Database
+## Run A CLI Loop
 
 ```powershell
-python scripts/init_db.py
+ego init-db
+ego source add "C:\path\to\your\folder" --name "My Documents"
+ego scan src_xxxxxxxxxxxxxxxxxxxxxxxxxx
+ego enhance --date 2026-05-31 --type tag
+ego brief daily --date 2026-05-31 --force
+ego audit tail --event-type brief_generated
 ```
 
-The command creates or updates the local SQLite database under `EGO_DATA_HOME`
-when set, or under `~/.ego_data_core` by default.
+`source add` prints the generated `source_id`; pass that value to `ego scan`.
+`brief daily` prints `metadata.markdown_uri`, which points to the exported
+Markdown file under the local `vault/briefs` directory.
+
+You can also run the CLI module directly:
+
+```powershell
+python -m ego_data_core.cli brief daily --date 2026-05-31
+```
+
+The database and vault are stored under `EGO_DATA_HOME` when set, or under
+`~/.ego_data_core` by default.
 
 Supported profiles:
 
@@ -53,9 +70,11 @@ $env:EGO_PROFILE = "dev"   # dev, test, or prod
 ## Run Tests
 
 ```powershell
-pytest tests/test_health.py
+pytest
 ```
 
 ## Safety Boundary
 
-The current code does not scan, modify, move, rename, delete, upload, or transmit user files. All user-data ingestion and vault behavior starts in later issues and must remain non-destructive by default.
+Filesystem ingestion is read-only. Ego copies scanned file versions into its
+local vault and does not modify, move, rename, delete, upload, or transmit user
+files.

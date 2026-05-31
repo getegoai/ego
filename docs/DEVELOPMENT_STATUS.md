@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-31
 **Branch**: `main`
-**Current phase**: M4 Work Graph
-**Active issue**: none; next recommended issue is `EDC-017`
+**Current phase**: M5 Daily Brief
+**Active issue**: none; next recommended issue is `EDC-018`
 
 ## Collaboration Model
 
@@ -47,10 +47,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | In progress | `EDC-014` and `EDC-015` completed; next `EDC-017` Daily Brief. |
+| Work graph and brief | In progress | `EDC-014`, `EDC-015`, and `EDC-017` completed; next `EDC-018` formal Markdown evidence export. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-017 - Daily Brief Generator v0
+
+Status: completed.
+
+Position in the project:
+
+- This is the first concrete user-facing product output: Ego can now turn scanned files, extracted evidence, enhancements, project candidates, tasks, questions, and risks into a daily Markdown brief.
+- It moves the project from backend foundations into M5 Daily Brief, while still preserving the evidence-first rule: factual brief items carry evidence references.
+- It gives the next development loop a visible artifact to improve instead of only internal tables and API payloads.
+
+What changed:
+
+- Added `src/ego_data_core/brief/daily.py`.
+- Added `DailyBriefService.generate_daily_brief(...)`, `get_latest_daily_brief(...)`, `get_report(...)`, and `apply_item_feedback(...)`.
+- Added `POST /api/v1/briefs/generate`.
+- Added `GET /api/v1/briefs/daily/latest`.
+- Added `POST /api/v1/briefs/items/{report_item_id}/feedback`.
+- Daily Brief generation now writes `reports`, `report_items`, and `report_item_evidence_links`.
+- Markdown exports are written to `vault://briefs` and saved back to report metadata as `markdown_uri`.
+- Brief generation appends a `brief_generated` audit event.
+- Empty days produce a `data_health` item rather than inventing unsupported conclusions.
+- Added `tests/brief/test_daily_brief.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/brief/test_daily_brief.py` passed with 3 tests.
+
+Issues handled:
+
+- `EDC-018` asks for a standalone Markdown exporter. For `EDC-017`, Markdown export is intentionally embedded in the generator so the product output exists now; `EDC-018` can extract and formalize citation formatting without blocking the first visible artifact.
+- Automation opportunities are not implemented yet because the automation module is still pending. The brief generator leaves that lane out instead of inventing automation suggestions without a source.
+- If no evidence exists for a date, the system outputs data health status only.
+
+Next iteration:
+
+- Start `EDC-018`: split/formalize Markdown export and evidence reference format, then proceed toward CLI/demo so the user can run a complete local loop without reading code.
 
 ### EDC-015 - Task / Question / Risk Extraction v0
 

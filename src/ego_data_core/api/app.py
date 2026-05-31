@@ -8,6 +8,7 @@ from fastapi import FastAPI
 
 from ego_data_core import __version__
 from ego_data_core.api.routes.audit import router as audit_router
+from ego_data_core.api.routes.briefs import router as briefs_router
 from ego_data_core.api.routes.health import router as health_router
 from ego_data_core.api.routes.projects import router as projects_router
 from ego_data_core.api.routes.sources import router as sources_router
@@ -25,6 +26,7 @@ def create_app() -> FastAPI:
         lifespan=_lifespan,
     )
     app.include_router(audit_router, prefix="/api/v1")
+    app.include_router(briefs_router, prefix="/api/v1")
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(projects_router, prefix="/api/v1")
     app.include_router(sources_router, prefix="/api/v1")

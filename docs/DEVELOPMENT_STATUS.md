@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-018`
+**Active issue**: none; next recommended issue is `EDC-025`
 
 ## Collaboration Model
 
@@ -47,10 +47,43 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | In progress | `EDC-014`, `EDC-015`, and `EDC-017` completed; next `EDC-018` formal Markdown evidence export. |
-| CLI/demo | Not started | CLI before UI for early demo speed. |
+| Work graph and brief | In progress | `EDC-014`, `EDC-015`, `EDC-017`, and `EDC-018` completed; next visible-control layer is CLI. |
+| CLI/demo | Not started | Next recommended issue is `EDC-025`; CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-018 - Markdown Exporter and Evidence Reference Format
+
+Status: completed.
+
+Position in the project:
+
+- This hardens the first visible product artifact from `EDC-017`.
+- Daily Brief output now has a dedicated Markdown exporter instead of generator-local formatting.
+- This makes CLI and demo work easier because they can reuse one export path and one evidence citation format.
+
+What changed:
+
+- Added `src/ego_data_core/brief/export_markdown.py`.
+- Added `BriefMarkdownExporter.render_report(...)` and `export_report(...)`.
+- Added stable evidence reference lines in the format `[ev_xxx] title / path / time / excerpt`.
+- Evidence references use file title and scanner relative path; absolute local file URIs are not written into Markdown.
+- Updated `DailyBriefService` to export Markdown through `BriefMarkdownExporter`.
+- Exported `BriefMarkdownExporter` and `EvidenceReference` from the brief module.
+- Added `tests/brief/test_markdown_export.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/brief/test_markdown_export.py tests/brief/test_daily_brief.py` passed with 5 tests.
+
+Issues handled:
+
+- `EDC-017` already wrote Markdown. This iteration keeps that behavior but extracts the formatting into a reusable module, avoiding duplicate report rendering later.
+- Evidence references intentionally do not use `raw_objects.original_uri`, because that field can contain a local absolute path.
+
+Next iteration:
+
+- Start `EDC-025`: CLI commands for init-db, source add, scan, enhance, brief daily, and audit tail. This is the fastest path for the user to run a complete local product loop without reading code.
 
 ### EDC-017 - Daily Brief Generator v0
 

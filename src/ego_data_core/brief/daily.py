@@ -9,14 +9,12 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ego_data_core.audit import append_audit_log
+from ego_data_core.brief.export_markdown import BriefMarkdownExporter
 from ego_data_core.kernel.id_generator import generate_id
 from ego_data_core.storage.db import get_connection, run_migrations, transaction
-from ego_data_core.vault import VaultStorage, build_vault_uri
+from ego_data_core.vault import VaultStorage
 
 
-FACT_ITEM_TYPES = frozenset(
-    {"project_update", "new_evidence", "task", "question", "risk", "automation", "decision"}
-)
 REPORT_FEEDBACK = frozenset(
     {"confirm", "reject", "edit", "later", "convert_to_task", "authorize_action"}
 )
@@ -382,10 +380,10 @@ class DailyBriefService:
 
     def _export_markdown(self, report_id: str) -> str:
         report = self.get_report(report_id)
-        markdown = _render_markdown(report)
-        filename = f"daily-{report.report_date}-{report.report_id}.md"
-        uri = build_vault_uri("briefs", filename)
-        return self.storage.safe_write_text(uri, markdown)
+        return BriefMarkdownExporter(
+            self.database_path,
+            storage=self.storage,
+        ).export_report(report)
 
     def _update_report_metadata(self, report_id: str, patch: Mapping[str, Any]) -> None:
         with get_connection(self.database_path) as connection:
@@ -509,38 +507,6 @@ def _brief_summary(
         f"{len(context['risks'])} risk(s), "
         f"{len(items)} brief item(s)."
     )
-
-
-def _render_markdown(report: DailyBriefRecord) -> str:
-    lines = [
-        f"# {report.title}",
-        "",
-        f"Date: {report.report_date}",
-        "",
-        "## Summary",
-        "",
-        report.summary or "",
-        "",
-        "## Items",
-        "",
-    ]
-    for item in report.items:
-        lines.extend(
-            [
-                f"### {item['title']}",
-                "",
-                item.get("body") or "",
-                "",
-            ]
-        )
-        evidence_ids = item.get("evidence_ids") or []
-        if evidence_ids:
-            lines.append("Evidence: " + ", ".join(f"[{evidence_id}]" for evidence_id in evidence_ids))
-            lines.append("")
-        elif item["item_type"] in FACT_ITEM_TYPES:
-            lines.append("Evidence: missing")
-            lines.append("")
-    return "\n".join(lines).strip() + "\n"
 
 
 def _row_to_report(row, item_rows, evidence_by_item: Mapping[str, list[str]]) -> DailyBriefRecord:

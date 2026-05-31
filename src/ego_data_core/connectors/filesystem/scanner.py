@@ -10,14 +10,13 @@ import json
 import mimetypes
 import os
 from pathlib import Path
-import shutil
 from typing import Any
 from urllib.parse import unquote, urlparse
 
 from ego_data_core.audit.service import append_audit_log
-from ego_data_core.kernel.config import load_settings
 from ego_data_core.kernel.id_generator import generate_id
 from ego_data_core.storage.db import get_connection, run_migrations, transaction
+from ego_data_core.vault.storage import VaultStorage, build_vault_uri
 
 
 @dataclass(frozen=True)
@@ -354,12 +353,10 @@ def _sha256(path: Path) -> str:
 
 
 def _copy_to_versions_vault(file_path: Path, version_id: str) -> str:
-    settings = load_settings()
     extension = file_path.suffix.lower()
     stored_name = f"{version_id}{extension}"
-    target_path = settings.paths.versions_dir / stored_name
-    shutil.copy2(file_path, target_path)
-    return f"vault://versions/{stored_name}"
+    destination_uri = build_vault_uri("versions", stored_name)
+    return VaultStorage().safe_copy_file(file_path, destination_uri)
 
 
 def _next_version_no(connection, raw_object_id: str) -> int:

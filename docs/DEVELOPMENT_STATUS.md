@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-007`
+**Active issue**: none; next recommended issue is `EDC-008`
 
 ## Collaboration Model
 
@@ -44,13 +44,48 @@ Each implementation commit should include the relevant tests unless splitting is
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
-| Audit/source/vault scan | In progress | `EDC-004`, `EDC-005`, and `EDC-006` completed; next `EDC-007`. |
+| Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-007 - Vault File Storage And URI Rules
+
+Status: completed.
+
+Position in the project:
+
+- This is the local storage safety layer for every later artifact: object versions, evidence files, extracted text, model outputs, and briefs.
+- It keeps the ingestion pipeline from directly stitching local filesystem paths together.
+- It is a required bridge from "files can be scanned" to "files can be parsed, summarized, and exported".
+
+What changed:
+
+- Added `src/ego_data_core/vault/storage.py`.
+- Added `VaultStorage.resolve_uri(...)` for mapping `vault://...` URIs into `EGO_DATA_HOME/vault/...`.
+- Added safe helpers for `safe_write_json`, `safe_write_text`, `safe_copy_file`, and `read_text`.
+- Supported `vault://objects`, `vault://versions`, `vault://evidence`, `vault://extracted_text`, `vault://model_outputs`, and `vault://briefs`.
+- Rejected malformed or unsafe vault URIs, including traversal, encoded traversal, backslashes, drive separators, query strings, fragments, and unknown collections.
+- Added `build_vault_uri(...)` for generated vault filenames; it only accepts plain filenames and URL-encodes safe names.
+- Updated the filesystem scanner so version payload copies go through `VaultStorage` rather than manually writing under the versions directory.
+- Added `tests/vault/test_storage_uri.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/vault/test_storage_uri.py tests/connectors/test_filesystem_scanner.py` passed with 23 tests.
+- `.venv\Scripts\python -m pytest` passed with 59 tests.
+
+Issues handled:
+
+- The first draft could accidentally preserve a Windows-style path string inside a generated vault URI. This was tightened so generated vault URIs reject path-like names.
+- Vault storage filenames now avoid exposing the original absolute source path. Source identity is still recorded in the database as `original_uri`, while stored payload files use generated IDs.
+
+Next iteration:
+
+- Start `EDC-008`: document parser v0. This should turn scanned object versions into extracted text and text chunks, which is the first more concrete product-facing layer after ingestion.
 
 ### EDC-006 - Read-Only Filesystem Scanner
 

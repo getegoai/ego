@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-010`
+**Active issue**: none; next recommended issue is `EDC-011`
 
 ## Collaboration Model
 
@@ -46,11 +46,48 @@ Each implementation commit should include the relevant tests unless splitting is
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
-| Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
+| Model/router/enhancement | In progress | `EDC-010` completed; next `EDC-011` RuleBasedAdapter, then `EDC-013` enhancement pipeline. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-010 - Night Shift Job Queue v0
+
+Status: completed.
+
+Position in the project:
+
+- This is the local background-work control layer. Ego now has an explicit way to represent work, retries, failures, and completion.
+- It prepares the project for model enhancement and daily brief generation, where work should run as traceable jobs rather than hidden direct calls.
+- It also gives the user a clearer future status surface: pending, running, succeeded, failed, blocked, and cancelled.
+
+What changed:
+
+- Added `src/ego_data_core/nightshift/queue.py`.
+- Added `NightShiftQueue.create_job(...)`, `claim_next_job()`, `mark_succeeded(...)`, `mark_failed(...)`, `mark_blocked(...)`, `cancel_job(...)`, and `get_job(...)`.
+- Jobs are claimed by `priority ASC`, then `created_at ASC`.
+- Failed jobs record `error_message`, increment `retry_count`, and return to `pending` until `max_retries` is exhausted.
+- Every job lifecycle transition writes an audit event.
+- Added `src/ego_data_core/nightshift/worker.py`.
+- Added `NightShiftWorker` with handler registration, `run_once()`, `run_forever(...)`, and `request_stop()`.
+- Worker jobs without handlers are marked `blocked` instead of disappearing silently.
+- Added `tests/nightshift/test_queue.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/nightshift/test_queue.py` passed with 8 tests.
+- `.venv\Scripts\python -m pytest` passed with 72 tests.
+
+Issues handled:
+
+- Numeric priority is treated as a queue priority where lower values run first, matching the existing SQLite index shape.
+- Retries are explicit: a failure can reschedule the job as `pending`, and final exhaustion becomes `failed`.
+- Worker shutdown is cooperative; it finishes the current job and then stops.
+
+Next iteration:
+
+- Start `EDC-011`: Model Router interface and RuleBasedAdapter. This will give the enhancement pipeline a no-network, deterministic model substitute for summaries and tags.
 
 ### EDC-008 - Document Parser v0
 

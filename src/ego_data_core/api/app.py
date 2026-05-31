@@ -12,6 +12,7 @@ from ego_data_core.api.routes.health import router as health_router
 from ego_data_core.api.routes.projects import router as projects_router
 from ego_data_core.api.routes.sources import router as sources_router
 from ego_data_core.api.routes.twin import router as twin_router
+from ego_data_core.api.routes.workgraph import router as workgraph_router
 from ego_data_core.storage.db import run_migrations
 
 
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
     app.include_router(projects_router, prefix="/api/v1")
     app.include_router(sources_router, prefix="/api/v1")
     app.include_router(twin_router, prefix="/api/v1")
+    app.include_router(workgraph_router, prefix="/api/v1")
     return app
 
 

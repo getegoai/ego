@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M4 Work Graph
-**Active issue**: none; next recommended issue is `EDC-015`
+**Active issue**: none; next recommended issue is `EDC-017`
 
 ## Collaboration Model
 
@@ -47,10 +47,48 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | In progress | `EDC-014` completed; next `EDC-015` task/question/risk extraction. |
+| Work graph and brief | In progress | `EDC-014` and `EDC-015` completed; next `EDC-017` Daily Brief. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-015 - Task / Question / Risk Extraction v0
+
+Status: completed.
+
+Position in the project:
+
+- This turns evidence-backed text into actionable Work Graph items.
+- It builds on Project Discovery, Enhancement Pipeline, and RuleBasedAdapter output, while keeping every generated item linked back to Evidence.
+- It is the last major prerequisite before generating a useful Daily Brief.
+
+What changed:
+
+- Added `src/ego_data_core/workgraph/extractors.py`.
+- Added `WorkItemExtractor.extract_items(...)` to generate tasks, questions, and risks.
+- Added `WorkItemExtractor.apply_feedback(...)` for `confirm`, `reject`, `edit`, `later`, and `convert_to_task`.
+- Added `POST /api/v1/workgraph/extract`.
+- Added `GET /api/v1/workgraph/items`.
+- Added `POST /api/v1/workgraph/items/{item_type}/{item_id}/feedback`.
+- Task/risk candidates use `ModelRouter` with `RuleBasedAdapter` purposes `task_candidate` and `risk_candidate`.
+- Question candidates use local question-cue rules.
+- Generated tasks, questions, and risks are linked to Evidence through `graph_edges`.
+- Generated items are linked to discovered projects through `project_links` when a project relationship exists.
+- Added `tests/workgraph/test_extractors.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/workgraph/test_extractors.py` passed with 3 tests.
+- `.venv\Scripts\python -m pytest` passed with 87 tests.
+
+Issues handled:
+
+- The existing task/question/risk tables do not include a `proposed` enum value. For v0.1, proposed state is represented as `status='open'`, `user_confirmed=0`, and `metadata.workflow_status='proposed'`.
+- There is no dedicated task-evidence link table. Evidence traceability is represented through `graph_edges` with `relation_type='supports'` and `evidence_id` set.
+
+Next iteration:
+
+- Start `EDC-017`: Daily Brief generator v0. It can now aggregate Evidence, Enhancements, Projects, Tasks, Questions, and Risks into the first real user-facing brief.
 
 ### EDC-014 - Project Discovery v0
 

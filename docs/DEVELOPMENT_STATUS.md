@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-31
 **Branch**: `main`
-**Current phase**: M3 Enhancement Pipeline
-**Active issue**: none; next recommended issue is `EDC-013`
+**Current phase**: M4 Work Graph
+**Active issue**: none; next recommended issue is `EDC-014`
 
 ## Collaboration Model
 
@@ -46,11 +46,48 @@ Each implementation commit should include the relevant tests unless splitting is
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
-| Model/router/enhancement | In progress | `EDC-010` and `EDC-011` completed; next `EDC-013` enhancement pipeline. |
-| Work graph and brief | Not started | Needed for demo value chain. |
+| Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
+| Work graph and brief | Not started | Next `EDC-014` project discovery, then `EDC-015` task/question/risk extraction. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-013 - Enhancement Pipeline summary/tag
+
+Status: completed.
+
+Position in the project:
+
+- This is the first traceable insight pipeline. Ego can now create a job, read evidence text chunks, run the Model Router, and store an Enhancement linked back to Evidence.
+- It connects the previous foundations: Document Parser, Night Shift Queue, Model Router, Vault model outputs, `enhancements`, and `enhancement_evidence_links`.
+- This is the first product-relevant loop where scanned local files become a structured summary or tag result that can later feed Work Graph and Daily Brief.
+
+What changed:
+
+- Added `src/ego_data_core/twin/enhance.py`.
+- Added `EnhancementService.create_enhancement_job(...)` for summary/tag jobs.
+- Added `EnhancementService.handle_job(...)` and `run_enhancement(...)` for Night Shift worker execution.
+- Added `register_enhancement_handlers(...)` so a `NightShiftWorker` can execute enhancement jobs.
+- Added `POST /api/v1/twin/enhance` to create enhancement jobs.
+- Added `GET /api/v1/twin/enhancements?evidence_id=...` to query generated enhancements.
+- Enhancement execution reads `evidence_text_chunks`, calls `ModelRouter`, writes an `enhancements` row, and creates one or more `enhancement_evidence_links`.
+- Enhancement metadata records `model_invocation_id`, `output_ref_uri`, `job_id`, and adapter id.
+- Added `tests/twin/test_enhance_summary_tag.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/twin/test_enhance_summary_tag.py` passed with 4 tests.
+- `.venv\Scripts\python -m pytest` passed with 81 tests.
+
+Issues handled:
+
+- Model output remains model output, not Evidence. The Evidence link records what source material supported the Enhancement.
+- API job creation and worker execution are separate on purpose. This preserves the async-first design and keeps long-running work out of request handling.
+- Missing evidence fails clearly before any Enhancement row is created.
+
+Next iteration:
+
+- Start `EDC-014`: Project Discovery v0. This will use evidence, tags, summaries, and file context to propose project candidates.
 
 ### EDC-011 - Model Router Interface And RuleBasedAdapter
 

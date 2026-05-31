@@ -10,6 +10,7 @@ from ego_data_core import __version__
 from ego_data_core.api.routes.audit import router as audit_router
 from ego_data_core.api.routes.health import router as health_router
 from ego_data_core.api.routes.sources import router as sources_router
+from ego_data_core.api.routes.twin import router as twin_router
 from ego_data_core.storage.db import run_migrations
 
 
@@ -24,6 +25,7 @@ def create_app() -> FastAPI:
     app.include_router(audit_router, prefix="/api/v1")
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(sources_router, prefix="/api/v1")
+    app.include_router(twin_router, prefix="/api/v1")
     return app
 
 

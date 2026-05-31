@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-05-31
 **Branch**: `main`
-**Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-011`
+**Current phase**: M3 Enhancement Pipeline
+**Active issue**: none; next recommended issue is `EDC-013`
 
 ## Collaboration Model
 
@@ -46,11 +46,49 @@ Each implementation commit should include the relevant tests unless splitting is
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
-| Model/router/enhancement | In progress | `EDC-010` completed; next `EDC-011` RuleBasedAdapter, then `EDC-013` enhancement pipeline. |
+| Model/router/enhancement | In progress | `EDC-010` and `EDC-011` completed; next `EDC-013` enhancement pipeline. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-011 - Model Router Interface And RuleBasedAdapter
+
+Status: completed.
+
+Position in the project:
+
+- This is the no-network intelligence layer. Ego can now produce deterministic summaries, tags, task candidates, and risk candidates without Ollama or cloud APIs.
+- It gives the upcoming enhancement pipeline a stable model interface while keeping v0.1 runnable on a clean local machine.
+- It also starts recording model-like work in `model_invocations`, which is needed for traceability and later compute/model routing.
+
+What changed:
+
+- Added `src/ego_data_core/model_router/router.py`.
+- Added `ModelRouter.run(...)` as the service entry point.
+- Added `RuleBasedAdapter` with support for `summary`, `tag`, `task_candidate`, and `risk_candidate`.
+- Added structured inputs through `ModelInputRef` and structured results through `ModelRunResult`.
+- Wrote model outputs to `vault://model_outputs/{invocation_id}.json`.
+- Wrote every run to `model_invocations` with purpose, input ref, output ref, prompt hash, token estimates, latency, privacy level, external-call flag, status, and metadata.
+- Added a local rule model/provider record for the built-in adapter.
+- Wrote `model_invoked` audit events for successful, failed, and blocked runs.
+- Blocked external adapters from reading `sensitive` or `critical` input by default, writing both a blocked `model_invocations` row and a `policy_blocked` audit event.
+- Added `tests/model_router/test_rule_based.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/model_router/test_rule_based.py` passed with 5 tests.
+- `.venv\Scripts\python -m pytest` passed with 77 tests.
+
+Issues handled:
+
+- Model-generated output is not written as Evidence. It is stored under `vault://model_outputs` and referenced from `model_invocations`.
+- Audit and invocation metadata avoid storing full input text; the raw text stays in extracted text/chunks, while invocation metadata stores refs and hashes.
+- External model policy is intentionally minimal here. `EDC-020` will expand it into the full Safety Kernel.
+
+Next iteration:
+
+- Start `EDC-013`: Enhancement Pipeline for summary/tag. This will connect evidence text chunks, Night Shift jobs, Model Router, and the `enhancements` tables into the first end-to-end "Ego read this and produced a traceable insight" flow.
 
 ### EDC-010 - Night Shift Job Queue v0
 

@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-006`
+**Active issue**: none; next recommended issue is `EDC-007`
 
 ## Collaboration Model
 
@@ -44,13 +44,50 @@ Each implementation commit should include the relevant tests unless splitting is
 | Project skeleton | Done | `EDC-000` completed: src-layout FastAPI skeleton, health endpoint, README, env example, and tests. |
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
-| Audit/source/vault scan | In progress | `EDC-004` and `EDC-005` completed; next `EDC-006`, then `EDC-007`. |
+| Audit/source/vault scan | In progress | `EDC-004`, `EDC-005`, and `EDC-006` completed; next `EDC-007`. |
 | Document parsing | Not started | `EDC-008`. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-006 - Read-Only Filesystem Scanner
+
+Status: completed.
+
+Position in the project:
+
+- This is the first concrete evidence-ingestion step. Ego can now scan an authorized filesystem source and turn files into database records.
+- It is still not a full product UI, but it proves the core pipeline shape: Source -> Raw Object -> Object Version -> Evidence -> Audit.
+
+What changed:
+
+- Added `src/ego_data_core/connectors/filesystem/scanner.py`.
+- Added `FilesystemScanner.scan_source(source_id)`.
+- The scanner reads `sources.root_uri` and `scan_policy_json`.
+- It recursively scans files with `max_depth`, `include_globs`, and `exclude_globs`.
+- It calculates SHA-256, file size, mtime, and MIME type.
+- It creates `raw_objects`, `object_versions`, and `evidence`.
+- It copies version payloads into the local versions vault without modifying source files.
+- Same-hash duplicates reuse the existing version storage URI and mark duplicate metadata.
+- Repeated scans skip unchanged files.
+- Modified files create a new object version and new evidence.
+- Scan-created objects and evidence write audit events.
+- Added `tests/connectors/test_filesystem_scanner.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/connectors/test_filesystem_scanner.py` passed.
+
+Issues handled:
+
+- Duplicate-file testing initially used text write on Windows, which changed line endings and produced a different hash. The test now copies bytes to verify true same-hash duplicate behavior.
+- The scanner only reads from the source directory. It does not move, rename, delete, or rewrite user files.
+
+Next iteration:
+
+- Start `EDC-007`: formalize `vault://` URI resolution and safe file operations so version/evidence/model/brief storage has a shared safety layer.
 
 ### EDC-005 - Source Management API
 

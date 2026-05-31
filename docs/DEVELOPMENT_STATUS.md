@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M4 Work Graph
-**Active issue**: none; next recommended issue is `EDC-014`
+**Active issue**: none; next recommended issue is `EDC-015`
 
 ## Collaboration Model
 
@@ -47,10 +47,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | Not started | Next `EDC-014` project discovery, then `EDC-015` task/question/risk extraction. |
+| Work graph and brief | In progress | `EDC-014` completed; next `EDC-015` task/question/risk extraction. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-014 - Project Discovery v0
+
+Status: completed.
+
+Position in the project:
+
+- This is the first Work Graph step. Ego can now group evidence into project candidates instead of treating all evidence as isolated files.
+- It uses rule-first discovery from directories, file names, and tag enhancements, keeping model output as a hint rather than a fact.
+- It prepares the next extraction layer: tasks, questions, and risks can attach to a project candidate.
+
+What changed:
+
+- Added `src/ego_data_core/workgraph/project_discovery.py`.
+- Added `ProjectDiscoveryService.discover_projects(...)`, `list_projects(...)`, `get_project(...)`, and `apply_feedback(...)`.
+- Added `POST /api/v1/projects/discover`.
+- Added `GET /api/v1/projects`.
+- Added `POST /api/v1/projects/{project_id}/feedback`.
+- Project candidates are stored in `projects` with `user_confirmed=0`.
+- Evidence and raw objects are linked through `project_links` with confidence scores.
+- User feedback supports `confirm`, `reject`, and `edit`.
+- Rejected project candidates are not regenerated unless `force_regenerate=true`.
+- Added `tests/workgraph/test_project_discovery.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/workgraph/test_project_discovery.py` passed with 3 tests.
+- `.venv\Scripts\python -m pytest` passed with 84 tests.
+
+Issues handled:
+
+- The schema has no separate project candidate table or rejected status. For v0.1, candidates use `projects.user_confirmed=0`; rejected candidates use `status='archived'` plus metadata.
+- Discovery is explicitly inferential. Confidence and metadata identify the rule-based discovery method.
+
+Next iteration:
+
+- Start `EDC-015`: Task / Question / Risk extraction v0. This will turn enhanced evidence and text chunks into actionable work graph objects.
 
 ### EDC-013 - Enhancement Pipeline summary/tag
 

@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-05-31
+**Last updated**: 2026-06-01
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-027`
+**Active issue**: none; next recommended issue is `EDC-028`
 
 ## Collaboration Model
 
@@ -47,10 +47,44 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
-| Work graph and brief | In progress | `EDC-014`, `EDC-015`, `EDC-017`, and `EDC-018` completed; data health still pending as `EDC-027`. |
+| Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-027 - Daily Brief Data Health
+
+Status: completed.
+
+Position in the project:
+
+- This closes the M5 Daily Brief quality loop: the brief now explains not only what changed, but also how trustworthy the data pipeline was for that day.
+- It gives the user a compact health panel for coverage, parser failures, enhancement completion, pending work, and privacy-policy blocks.
+- It improves operator control before we add more UI, because the Markdown output itself now says what needs attention.
+
+What changed:
+
+- Added `src/ego_data_core/brief/data_health.py`.
+- Added `DataHealthService.snapshot(...)` and `DataHealthSnapshot`.
+- Daily Brief generation now appends a `data_health` report item every day.
+- Data Health reports new file count, evidence count, parse success rate, parse failures, parse pending count, enhancement job completion, enhanced evidence coverage, policy-blocked external calls, failed jobs, pending jobs, severity, and recommendations.
+- Markdown export now renders evidence-free system items as `System: data_health` instead of `Evidence: none`.
+- Report metadata now includes the data health snapshot.
+- Added `tests/brief/test_data_health.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/brief/test_data_health.py tests/brief/test_daily_brief.py tests/brief/test_markdown_export.py tests/demo/test_demo_smoke.py` passed with 8 tests.
+
+Issues handled:
+
+- Unsupported document parse failures are surfaced through failed `document_parse` jobs and reflected in Data Health.
+- Privacy policy blocks are counted from `policy_blocked` audit events, not inferred from text.
+- No-data days now produce next-step setup guidance instead of a generic empty update.
+
+Next iteration:
+
+- Start `EDC-028`: unified errors and logging. This should make API and background-job failures easier to understand and safer to expose.
 
 ### EDC-026 - Demo Seed Data and One-Command Script
 

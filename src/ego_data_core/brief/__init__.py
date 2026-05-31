@@ -1,5 +1,10 @@
 """Brief generation module."""
 
+from ego_data_core.brief.data_health import (
+    DataHealthService,
+    DataHealthSnapshot,
+    data_health_report_item,
+)
 from ego_data_core.brief.daily import (
     DailyBriefRecord,
     DailyBriefService,
@@ -11,6 +16,9 @@ __all__ = [
     "BriefMarkdownExporter",
     "DailyBriefRecord",
     "DailyBriefService",
+    "DataHealthService",
+    "DataHealthSnapshot",
     "EvidenceReference",
+    "data_health_report_item",
     "daily_brief_to_dict",
 ]

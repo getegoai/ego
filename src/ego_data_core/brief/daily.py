@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ego_data_core.audit import append_audit_log
+from ego_data_core.brief.data_health import DataHealthService, data_health_report_item
 from ego_data_core.brief.export_markdown import BriefMarkdownExporter
 from ego_data_core.kernel.id_generator import generate_id
 from ego_data_core.storage.db import get_connection, run_migrations, transaction
@@ -72,6 +73,7 @@ class DailyBriefService:
             "task_count": len(context["tasks"]),
             "question_count": len(context["questions"]),
             "risk_count": len(context["risks"]),
+            "data_health": context["data_health"],
         }
 
         with get_connection(self.database_path) as connection:
@@ -254,7 +256,7 @@ class DailyBriefService:
             raise ValueError(f"Report item not found: {report_item_id}")
         return _report_item_to_dict(row, [])
 
-    def _load_context(self, target_date: str) -> dict[str, list[dict[str, Any]]]:
+    def _load_context(self, target_date: str) -> dict[str, Any]:
         start, end = _date_bounds(target_date)
         with get_connection(self.database_path) as connection:
             evidence = _fetch_all_dicts(
@@ -347,6 +349,7 @@ class DailyBriefService:
             "tasks": tasks,
             "questions": questions,
             "risks": risks,
+            "data_health": DataHealthService(self.database_path).snapshot(target_date).to_dict(),
         }
 
     def _latest_report_for_date(self, target_date: str) -> DailyBriefRecord | None:
@@ -421,7 +424,7 @@ def daily_brief_to_dict(record: DailyBriefRecord) -> dict[str, Any]:
     }
 
 
-def _build_report_items(context: Mapping[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
+def _build_report_items(context: Mapping[str, Any]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     evidence = context["evidence"]
     if evidence:
@@ -462,18 +465,7 @@ def _build_report_items(context: Mapping[str, list[dict[str, Any]]]) -> list[dic
         item["severity"] = "medium"
         items.append(item)
 
-    if not items:
-        items.append(
-            {
-                "item_type": "data_health",
-                "title": "No evidence-backed updates yet",
-                "body": "No new evidence, enhancements, projects, tasks, questions, or risks were available for this date.",
-                "severity": "info",
-                "confidence": 1.0,
-                "inferred": False,
-                "evidence_ids": [],
-            }
-        )
+    items.append(data_health_report_item(context["data_health"]))
 
     return items
 
@@ -496,7 +488,7 @@ def _work_item_report_item(item_type: str, row: Mapping[str, Any]) -> dict[str, 
 
 
 def _brief_summary(
-    context: Mapping[str, list[dict[str, Any]]],
+    context: Mapping[str, Any],
     items: Sequence[Mapping[str, Any]],
 ) -> str:
     return (

@@ -13,6 +13,8 @@ from ego_data_core.vault import VaultStorage, build_vault_uri
 if TYPE_CHECKING:
     from ego_data_core.brief.daily import DailyBriefRecord
 
+SYSTEM_ITEM_TYPES = frozenset({"data_health", "system"})
+
 
 @dataclass(frozen=True)
 class EvidenceReference:
@@ -132,6 +134,9 @@ def _evidence_lines(
 ) -> list[str]:
     evidence_ids = item.get("evidence_ids") or []
     if not evidence_ids:
+        if item.get("item_type") in SYSTEM_ITEM_TYPES:
+            reference = item.get("metadata", {}).get("system_reference") or item.get("item_type")
+            return [f"System: {reference}"]
         return ["Evidence: none"]
 
     lines: list[str] = []

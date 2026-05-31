@@ -3,7 +3,7 @@
 **Last updated**: 2026-05-31
 **Branch**: `main`
 **Current phase**: M1 DB + Source + Vault
-**Active issue**: none; next recommended issue is `EDC-008`
+**Active issue**: none; next recommended issue is `EDC-010`
 
 ## Collaboration Model
 
@@ -45,12 +45,50 @@ Each implementation commit should include the relevant tests unless splitting is
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
-| Document parsing | Not started | `EDC-008`. |
+| Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
 | Model/router/enhancement | Not started | RuleBasedAdapter first; Ollama optional. |
 | Work graph and brief | Not started | Needed for demo value chain. |
 | CLI/demo | Not started | CLI before UI for early demo speed. |
 
 ## Latest Iteration
+
+### EDC-008 - Document Parser v0
+
+Status: completed.
+
+Position in the project:
+
+- This is the first content-understanding step. Ego can now turn scanned document versions into extracted text and chunk records.
+- It connects the ingestion foundation to later search, model routing, enhancement, and daily brief generation.
+- This is the first layer where the product starts moving from "I found files" toward "I can read and reason over evidence".
+
+What changed:
+
+- Added `src/ego_data_core/connectors/documents/parser.py`.
+- Added `DocumentParser.parse_version(version_id)` for parsing a single object version.
+- Added `DocumentParser.parse_unparsed_versions(...)` for batch parsing without stopping on unsupported or failed files.
+- Supported `.txt`, `.md`, `.pdf`, and `.docx` extraction.
+- Added `pypdf` and `python-docx` as lightweight parser dependencies, while keeping imports lazy so parser failures can be handled cleanly.
+- Wrote extracted text to `vault://extracted_text/{version_id}.txt`.
+- Wrote paragraph-aware text chunks to `evidence_text_chunks` with `evidence_id`, `chunk_index`, `text`, `token_count`, `char_start`, and `char_end`.
+- Wrote the same chunks into `evidence_text_fts` so later local search can build on the parser output.
+- Unsupported file types create a failed `jobs` row and an `error` audit event, while other files continue parsing.
+- Added `tests/connectors/test_document_parser.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/connectors/test_document_parser.py` passed with 5 tests.
+- `.venv\Scripts\python -m pytest` passed with 64 tests.
+
+Issues handled:
+
+- PDF and DOCX parsing require optional parser libraries. They are now project dependencies, and the parser still reports a clean failure if a dependency is unavailable in another environment.
+- Unsupported files such as `.xlsx` are not silently ignored; they produce a failed parse result, a failed job record, and an error audit record.
+- Empty but valid documents, such as a blank PDF, are treated as successful parses with zero chunks.
+
+Next iteration:
+
+- Start `EDC-010`: local job queue. This will let scanning, parsing, and later enhancement run as explicit work units instead of only direct service calls.
 
 ### EDC-007 - Vault File Storage And URI Rules
 

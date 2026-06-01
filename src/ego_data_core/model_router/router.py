@@ -13,6 +13,12 @@ from typing import Any, Mapping, Protocol, Sequence
 
 from ego_data_core.audit.service import append_audit_log
 from ego_data_core.kernel.id_generator import generate_id
+from ego_data_core.safety import (
+    can_include_evidence_in_context,
+    can_use_external_model,
+    effective_privacy_level,
+    normalize_privacy_level,
+)
 from ego_data_core.storage.db import get_connection, run_migrations, transaction
 from ego_data_core.vault import VaultStorage, build_vault_uri
 
@@ -22,14 +28,6 @@ RULE_MODEL_ID = "model_rule_based_v0"
 SUPPORTED_PURPOSES = frozenset(
     {"summary", "tag", "task_candidate", "risk_candidate"}
 )
-PRIVACY_ORDER = {
-    "public": 0,
-    "private": 1,
-    "sensitive": 2,
-    "critical": 3,
-}
-
-
 @dataclass(frozen=True)
 class ModelInputRef:
     uri: str
@@ -125,12 +123,26 @@ class ModelRouter:
         run_migrations(self.database_path)
         self._ensure_adapter_model()
 
-        blocked_reason = _policy_block_reason(
-            self.adapter,
-            effective_privacy,
-            normalized_policy,
+        decision = (
+            can_use_external_model(
+                effective_privacy,
+                normalized_policy,
+                purpose=normalized_purpose,
+                subject_type="model_invocation",
+                subject_id=invocation_id,
+                database_path=self.database_path,
+            )
+            if self.adapter.external_call
+            else can_include_evidence_in_context(
+                effective_privacy,
+                normalized_policy,
+                purpose=normalized_purpose,
+                subject_type="model_invocation",
+                subject_id=invocation_id,
+                database_path=self.database_path,
+            )
         )
-        if blocked_reason:
+        if not decision.allowed:
             latency_ms = _elapsed_ms(started)
             self._write_invocation(
                 invocation_id=invocation_id,
@@ -144,7 +156,7 @@ class ModelRouter:
                 privacy_level=effective_privacy,
                 allowed_by_policy=False,
                 status="blocked",
-                error_message=blocked_reason,
+                error_message=decision.reason,
                 job_id=job_id,
             )
             self._append_invocation_audit(
@@ -152,19 +164,7 @@ class ModelRouter:
                 normalized_purpose,
                 "blocked",
                 effective_privacy,
-                blocked_reason,
-            )
-            append_audit_log(
-                "policy_blocked",
-                actor="system",
-                target={"type": "model_invocation", "id": invocation_id},
-                payload={
-                    "purpose": normalized_purpose,
-                    "adapter_id": self.adapter.adapter_id,
-                    "privacy_level": effective_privacy,
-                    "reason": blocked_reason,
-                },
-                database_path=self.database_path,
+                decision.reason,
             )
             return ModelRunResult(
                 invocation_id=invocation_id,
@@ -175,7 +175,7 @@ class ModelRouter:
                 adapter_id=self.adapter.adapter_id,
                 model_id=self.adapter.model_id,
                 privacy_level=effective_privacy,
-                error_message=blocked_reason,
+                error_message=decision.reason,
             )
 
         try:
@@ -456,7 +456,7 @@ def _normalize_input_refs(
                 ModelInputRef(
                     uri=uri,
                     text=text,
-                    privacy_level=_normalize_privacy_level(privacy_level),
+                    privacy_level=normalize_privacy_level(privacy_level),
                     metadata=metadata,
                 )
             )
@@ -471,31 +471,8 @@ def _effective_privacy(
 ) -> str:
     candidates = [item.privacy_level for item in input_refs]
     if privacy_level:
-        candidates.append(_normalize_privacy_level(privacy_level))
-    return max(candidates, key=lambda item: PRIVACY_ORDER[item])
-
-
-def _normalize_privacy_level(value: str) -> str:
-    normalized = value.strip().lower()
-    if normalized not in PRIVACY_ORDER:
-        allowed = ", ".join(PRIVACY_ORDER)
-        raise ValueError(f"Invalid privacy_level '{value}'. Allowed: {allowed}")
-    return normalized
-
-
-def _policy_block_reason(
-    adapter: ModelAdapter,
-    privacy_level: str,
-    policy: Mapping[str, Any],
-) -> str | None:
-    allow_external = bool(policy.get("allow_external"))
-    if (
-        adapter.external_call
-        and privacy_level in {"sensitive", "critical"}
-        and not allow_external
-    ):
-        return f"{privacy_level} data cannot use external models without explicit policy"
-    return None
+        candidates.append(normalize_privacy_level(privacy_level))
+    return effective_privacy_level(candidates)
 
 
 def _validate_purpose(purpose: str, supported_purposes: frozenset[str]) -> None:

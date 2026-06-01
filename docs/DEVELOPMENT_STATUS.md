@@ -3,7 +3,7 @@
 **Last updated**: 2026-06-01
 **Branch**: `main`
 **Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-020`
+**Active issue**: none; next recommended issue is `EDC-009`
 
 ## Collaboration Model
 
@@ -45,12 +45,51 @@ Each implementation commit should include the relevant tests unless splitting is
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, `EDC-028`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
-| Document parsing | Done | `EDC-008` completed: scanned versions can produce extracted text and evidence text chunks. |
-| Model/router/enhancement | Done | `EDC-010`, `EDC-011`, and `EDC-013` completed; Safety Kernel still pending as `EDC-020`. |
+| Document parsing/search | In progress | `EDC-008` completed; next recommended issue is `EDC-009` local full-text search before UI. |
+| Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-020 - Safety Kernel: Privacy and External-Call Policy
+
+Status: completed.
+
+Position in the project:
+
+- This completes the missing privacy policy layer under Model Router and Enhancement Pipeline.
+- It turns ad hoc model-call checks into shared Safety Kernel decisions that other modules can reuse.
+- It makes critical data stricter than before: critical evidence cannot enter any model context by default, including local rule-based adapters, unless there is per-call authorization.
+
+What changed:
+
+- Added `src/ego_data_core/safety/policy.py`.
+- Added `PolicyDecision`.
+- Added `can_use_external_model(...)`.
+- Added `can_include_evidence_in_context(...)`.
+- Added `requires_authorization(...)`.
+- Added privacy normalization and effective privacy calculation helpers.
+- Policy blocks now append `policy_blocked` audit events from the Safety Kernel.
+- Updated Model Router to call Safety Kernel for external model decisions and context inclusion decisions.
+- Added `tests/safety/test_policy.py`.
+- Extended `tests/model_router/test_rule_based.py` with a critical-data block case.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/safety/test_policy.py tests/model_router/test_rule_based.py` passed with 11 tests.
+
+Issues handled:
+
+- `public` data can use external models.
+- `private` external model use requires `allow_external`.
+- `sensitive` defaults to local-only/rule behavior; external use requires explicit `allow_external`.
+- `critical` requires per-call authorization before model/context use.
+- Existing sensitive external-call behavior remains compatible with explicit `allow_external`.
+
+Next iteration:
+
+- Start `EDC-009`: local full-text search. This is a skipped M2 prerequisite for `EDC-019` UI, because the UI is expected to show Evidence search.
 
 ### EDC-028 - Unified Errors and Logging
 

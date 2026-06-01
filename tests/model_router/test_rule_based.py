@@ -122,6 +122,41 @@ def test_sensitive_data_blocks_external_adapter_by_default() -> None:
     assert policy_blocked_count == 1
 
 
+def test_critical_data_blocks_rule_based_context_without_authorization() -> None:
+    result = ModelRouter().run(
+        "summary",
+        [
+            {
+                "uri": "chunk://chk_critical",
+                "text": "Critical project note",
+                "privacy_level": "critical",
+            }
+        ],
+    )
+
+    assert result.status == "blocked"
+    assert "critical evidence cannot be included" in result.error_message
+    with get_connection() as connection:
+        invocation = connection.execute(
+            "SELECT * FROM model_invocations WHERE invocation_id = ?",
+            (result.invocation_id,),
+        ).fetchone()
+        policy_blocked_count = connection.execute(
+            """
+            SELECT COUNT(*)
+            FROM audit_logs
+            WHERE event_type = 'policy_blocked'
+              AND subject_id = ?
+            """,
+            (result.invocation_id,),
+        ).fetchone()[0]
+
+    assert invocation["status"] == "blocked"
+    assert invocation["external_call"] == 0
+    assert invocation["allowed_by_policy"] == 0
+    assert policy_blocked_count == 1
+
+
 def test_explicit_policy_can_allow_external_sensitive_run() -> None:
     adapter = _ExternalAdapter()
     router = ModelRouter(adapter=adapter)

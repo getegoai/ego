@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 from io import StringIO
 import json
 import os
@@ -34,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         summary = run_demo(
             workspace,
-            report_date=args.report_date or _today_utc(),
+            report_date=args.report_date or _today_local(),
             enhancement_type=args.enhancement_type,
         )
     except Exception as exc:
@@ -124,8 +123,10 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _today_utc() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+def _today_local() -> str:
+    from ego_data_core.kernel.time import local_today
+
+    return local_today()
 
 
 if __name__ == "__main__":

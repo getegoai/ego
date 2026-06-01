@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
 from pathlib import Path
 
 from ego_data_core.brief import DailyBriefService
 from ego_data_core.connectors.documents import DocumentParser
 from ego_data_core.connectors.filesystem import FilesystemScanner
 from ego_data_core.connectors.source_service import SourceService
+from ego_data_core.kernel.time import local_today
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
 from ego_data_core.storage.db import get_connection
 from ego_data_core.twin import EnhancementService, register_enhancement_handlers
@@ -17,7 +17,7 @@ def test_daily_brief_aggregates_context_exports_markdown_and_audit(
 ) -> None:
     _prepare_daily_brief_context(tmp_path)
     service = DailyBriefService()
-    target_date = _today_utc()
+    target_date = _today_local()
 
     brief = service.generate_daily_brief(target_date)
 
@@ -63,7 +63,7 @@ def test_daily_brief_is_idempotent_and_force_regeneration_archives_previous(
 ) -> None:
     _prepare_daily_brief_context(tmp_path)
     service = DailyBriefService()
-    target_date = _today_utc()
+    target_date = _today_local()
 
     first = service.generate_daily_brief(target_date)
     second = service.generate_daily_brief(target_date)
@@ -147,5 +147,5 @@ def _prepare_daily_brief_context(tmp_path: Path) -> None:
     WorkItemExtractor().extract_items()
 
 
-def _today_utc() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+def _today_local() -> str:
+    return local_today()

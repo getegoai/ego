@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from ego_data_core.kernel.time import local_date_bounds_as_utc, normalize_report_date
 from ego_data_core.storage.db import get_connection, run_migrations
 
 
@@ -379,13 +379,8 @@ def _percent(value: float | None) -> str:
 
 
 def _normalize_date(value: str) -> str:
-    return date.fromisoformat(value).isoformat()
+    return normalize_report_date(value)
 
 
 def _date_bounds(value: str) -> tuple[str, str]:
-    start_date = date.fromisoformat(value)
-    end_date = start_date + timedelta(days=1)
-    return (
-        datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-        datetime.combine(end_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-    )
+    return local_date_bounds_as_utc(value)

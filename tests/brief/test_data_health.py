@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
 from pathlib import Path
 
 from ego_data_core.brief import DailyBriefService, DataHealthService
 from ego_data_core.connectors.documents import DocumentParser
 from ego_data_core.connectors.filesystem import FilesystemScanner
 from ego_data_core.connectors.source_service import SourceService
+from ego_data_core.kernel.time import local_today
 from ego_data_core.model_router import ModelRouter
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
 from ego_data_core.storage.db import get_connection
@@ -32,7 +32,7 @@ def test_data_health_reports_empty_day_recommendations() -> None:
 def test_data_health_reports_parse_enhancement_policy_and_job_status(
     tmp_path: Path,
 ) -> None:
-    target_date = _today_utc()
+    target_date = _today_local()
     evidence = _prepare_health_context(tmp_path)
     _create_policy_block()
     queue = NightShiftQueue()
@@ -128,5 +128,5 @@ class _ExternalAdapter:
         return {"summary": "external summary"}
 
 
-def _today_utc() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+def _today_local() -> str:
+    return local_today()

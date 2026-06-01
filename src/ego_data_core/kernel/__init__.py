@@ -11,6 +11,7 @@ from ego_data_core.kernel.errors import (
     ValidationError,
 )
 from ego_data_core.kernel.id_generator import generate_id
+from ego_data_core.kernel.time import local_date_bounds_as_utc, local_today, normalize_report_date
 
 __all__ = [
     "ConnectorError",
@@ -21,5 +22,8 @@ __all__ = [
     "StorageError",
     "ValidationError",
     "generate_id",
+    "local_date_bounds_as_utc",
+    "local_today",
     "load_settings",
+    "normalize_report_date",
 ]

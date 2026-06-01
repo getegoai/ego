@@ -1,13 +1,14 @@
-from datetime import datetime, timezone
 import json
 from pathlib import Path
 import subprocess
 import sys
 
+from ego_data_core.kernel.time import local_today
+
 
 def test_demo_script_generates_evidence_backed_brief(tmp_path: Path) -> None:
     data_home = tmp_path / "ego_demo_home"
-    target_date = datetime.now(timezone.utc).date().isoformat()
+    target_date = local_today()
 
     result = subprocess.run(
         [

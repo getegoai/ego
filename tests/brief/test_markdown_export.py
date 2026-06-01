@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
 from pathlib import Path
 
 from ego_data_core.brief import BriefMarkdownExporter, DailyBriefService
 from ego_data_core.connectors.documents import DocumentParser
 from ego_data_core.connectors.filesystem import FilesystemScanner
 from ego_data_core.connectors.source_service import SourceService
+from ego_data_core.kernel.time import local_today
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
 from ego_data_core.storage.db import get_connection
 from ego_data_core.twin import EnhancementService, register_enhancement_handlers
@@ -16,7 +16,7 @@ def test_markdown_export_uses_stable_evidence_references_without_absolute_paths(
     tmp_path: Path,
 ) -> None:
     _prepare_export_context(tmp_path)
-    brief = DailyBriefService().generate_daily_brief(_today_utc())
+    brief = DailyBriefService().generate_daily_brief(_today_local())
 
     markdown = BriefMarkdownExporter().render_report(brief)
 
@@ -30,7 +30,7 @@ def test_markdown_export_uses_stable_evidence_references_without_absolute_paths(
 
 def test_markdown_export_writes_to_briefs_vault(tmp_path: Path) -> None:
     _prepare_export_context(tmp_path)
-    brief = DailyBriefService().generate_daily_brief(_today_utc())
+    brief = DailyBriefService().generate_daily_brief(_today_local())
     exporter = BriefMarkdownExporter()
 
     uri = exporter.export_report(brief)
@@ -84,5 +84,5 @@ def _prepare_export_context(tmp_path: Path) -> None:
     WorkItemExtractor().extract_items()
 
 
-def _today_utc() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+def _today_local() -> str:
+    return local_today()

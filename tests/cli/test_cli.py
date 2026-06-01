@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
 from io import StringIO
 import json
 from pathlib import Path
 
 from ego_data_core.cli import run
+from ego_data_core.kernel.time import local_today
 from ego_data_core.vault import VaultStorage
 
 
@@ -37,7 +37,7 @@ def test_cli_runs_scan_enhance_brief_and_audit_loop(tmp_path: Path) -> None:
         ),
         encoding="utf-8",
     )
-    target_date = datetime.now(timezone.utc).date().isoformat()
+    target_date = local_today()
 
     add_status, source_payload, add_error = _run_cli(
         ["source", "add", str(workspace), "--name", "CLI Loop"]

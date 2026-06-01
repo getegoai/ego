@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date, datetime, timedelta, timezone
 import json
 from pathlib import Path
 import sys
@@ -14,6 +13,7 @@ from ego_data_core.brief import DailyBriefService, daily_brief_to_dict
 from ego_data_core.connectors.documents import DocumentParser
 from ego_data_core.connectors.filesystem import FilesystemScanner
 from ego_data_core.connectors.source_service import SourceService, source_to_dict
+from ego_data_core.kernel.time import local_date_bounds_as_utc, normalize_report_date
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
 from ego_data_core.storage.db import get_connection, run_migrations
 from ego_data_core.twin import EnhancementService, register_enhancement_handlers
@@ -249,18 +249,11 @@ def _job_to_dict(job) -> dict[str, Any]:
 
 
 def _normalize_date(value: str | None) -> str:
-    if value is None:
-        return datetime.now(timezone.utc).date().isoformat()
-    return date.fromisoformat(value).isoformat()
+    return normalize_report_date(value)
 
 
 def _date_bounds(value: str) -> tuple[str, str]:
-    start_date = date.fromisoformat(value)
-    end_date = start_date + timedelta(days=1)
-    return (
-        datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-        datetime.combine(end_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-    )
+    return local_date_bounds_as_utc(value)
 
 
 def _print_json(payload: Any, out: TextIO) -> None:

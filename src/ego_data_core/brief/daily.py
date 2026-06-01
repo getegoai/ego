@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -12,6 +12,7 @@ from ego_data_core.audit import append_audit_log
 from ego_data_core.brief.data_health import DataHealthService, data_health_report_item
 from ego_data_core.brief.export_markdown import BriefMarkdownExporter
 from ego_data_core.kernel.id_generator import generate_id
+from ego_data_core.kernel.time import local_date_bounds_as_utc, normalize_report_date
 from ego_data_core.storage.db import get_connection, run_migrations, transaction
 from ego_data_core.vault import VaultStorage
 
@@ -575,18 +576,11 @@ def _evidence_by_project(connection) -> dict[str, list[str]]:
 
 
 def _normalize_date(value: str | None) -> str:
-    if value is None:
-        return datetime.now(timezone.utc).date().isoformat()
-    return date.fromisoformat(value).isoformat()
+    return normalize_report_date(value)
 
 
 def _date_bounds(value: str) -> tuple[str, str]:
-    start_date = date.fromisoformat(value)
-    end_date = start_date + timedelta(days=1)
-    return (
-        datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-        datetime.combine(end_date, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
-    )
+    return local_date_bounds_as_utc(value)
 
 
 def _to_json(payload: Any) -> str:

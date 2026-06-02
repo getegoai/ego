@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-06-01
+**Last updated**: 2026-06-02
 **Branch**: `main`
-**Current phase**: M5 Daily Brief
-**Active issue**: none; next recommended issue is `EDC-009`
+**Current phase**: M5 Daily Brief / UI readiness
+**Active issue**: none; next recommended issue is `EDC-019`
 
 ## Collaboration Model
 
@@ -45,12 +45,48 @@ Each implementation commit should include the relevant tests unless splitting is
 | Database and migrations | Done | `EDC-001` completed: SQLite migration runner, bundled schema, connection helper, transaction wrapper, and health DB status. |
 | ID/config/test foundation | Done | `EDC-002`, `EDC-003`, `EDC-028`, and `EDC-029` completed. |
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
-| Document parsing/search | In progress | `EDC-008` completed; next recommended issue is `EDC-009` local full-text search before UI. |
+| Document parsing/search | Done | `EDC-008` and `EDC-009` completed: parsed evidence chunks are searchable through local FTS with LIKE fallback. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-009 - Local Full-Text Search
+
+Status: completed.
+
+Position in the project:
+
+- This closes the skipped M2 search prerequisite before the local Web UI.
+- It gives future UI screens a concrete Evidence search API instead of asking the interface to query raw tables.
+- It keeps privacy boundaries intact by returning evidence IDs, chunk IDs, titles, snippets, dates, source IDs, and match information without returning `original_uri` or absolute local paths.
+
+What changed:
+
+- Added `src/ego_data_core/vault/search.py`.
+- Added `LocalSearchService.search(...)`.
+- Added `SearchResult` and `search_to_dict(...)`.
+- Added `GET /api/v1/search`.
+- Search uses SQLite FTS5 when available.
+- Search falls back to case-insensitive LIKE matching when FTS5 is unavailable or disabled.
+- Search supports `source_id`, `date_from`, `date_to`, and `limit`.
+- Added `tests/vault/test_search.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/vault/test_search.py` passed with 4 tests.
+
+Issues handled:
+
+- FTS output is shaped for UI use: `evidence_id`, `chunk_id`, `title`, `snippet`, `captured_at`, `source_id`, `chunk_index`, `score`, and `match_type`.
+- API payloads intentionally omit local filesystem paths.
+- LIKE fallback is tested directly with `prefer_fts=False`.
+- Empty queries return the standard validation error payload through the API layer.
+
+Next iteration:
+
+- Start `EDC-019`: local Web UI minimum version. The UI can now show real data surfaces: data health, daily brief, source status, and searchable evidence.
 
 ### EDC-020 - Safety Kernel: Privacy and External-Call Policy
 

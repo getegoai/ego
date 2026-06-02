@@ -37,6 +37,17 @@ Health check:
 Invoke-RestMethod http://127.0.0.1:8765/api/v1/health
 ```
 
+## Run The Local Web UI
+
+Start the local API, then open:
+
+```powershell
+http://127.0.0.1:8765
+```
+
+The UI shows the local API status, source authorization status, evidence search,
+latest Daily Brief, and audit log. It uses only local `/api/v1/*` endpoints.
+
 ## Run A CLI Loop
 
 ```powershell

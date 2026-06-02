@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-06-02
 **Branch**: `main`
-**Current phase**: M5 Daily Brief / UI readiness
-**Active issue**: none; next recommended issue is `EDC-019`
+**Current phase**: M5 Local Web UI
+**Active issue**: none; next recommended issue is `EDC-016`
 
 ## Collaboration Model
 
@@ -48,9 +48,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Document parsing/search | Done | `EDC-008` and `EDC-009` completed: parsed evidence chunks are searchable through local FTS with LIKE fallback. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
+| Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-019 - Local Web UI Minimum Version
+
+Status: completed.
+
+Position in the project:
+
+- This is the first browser-visible product surface.
+- It turns the existing local API into a usable operator workspace without adding a frontend framework.
+- It lets the user inspect system health, source authorization, searchable evidence, latest Daily Brief, and audit events from `http://127.0.0.1:8765`.
+
+What changed:
+
+- Added `src/ego_data_core/ui/static/index.html`.
+- Added `src/ego_data_core/ui/static/styles.css`.
+- Added `src/ego_data_core/ui/static/app.js`.
+- Added `src/ego_data_core/ui/__init__.py`.
+- Mounted the UI root at `/` and static assets under `/ui`.
+- Added `tests/api/test_static_ui.py`.
+- Updated README with local UI run instructions.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/api/test_static_ui.py` passed with 3 tests.
+- `.venv\Scripts\python -m pytest` passed with 118 tests.
+- Local demo smoke passed against `http://127.0.0.1:8765`: root page returned 200, Search for `project` returned 4 FTS evidence results, and a Chrome headless screenshot was generated.
+
+Issues handled:
+
+- The UI uses only local `/api/v1/*` endpoints.
+- API routes still work after mounting the static UI.
+- Source views intentionally do not render `root_uri`, keeping local filesystem paths off the main screen.
+- Evidence visibility is provided through Search results until a dedicated Evidence list API is added.
+
+Next iteration:
+
+- Start `EDC-016`: Automation Opportunity discovery. This unblocks `EDC-021` Operator Bridge dry-run and moves the product from observing work toward proposing safe next actions.
 
 ### EDC-009 - Local Full-Text Search
 

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from ego_data_core import __version__
@@ -28,6 +30,7 @@ from ego_data_core.kernel.logging import get_logger, log_exception
 from ego_data_core.storage.db import run_migrations
 
 logger = get_logger(__name__)
+UI_STATIC_DIR = Path(__file__).resolve().parent.parent / "ui" / "static"
 
 
 def create_app() -> FastAPI:
@@ -46,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(sources_router, prefix="/api/v1")
     app.include_router(twin_router, prefix="/api/v1")
     app.include_router(workgraph_router, prefix="/api/v1")
+    _mount_static_ui(app)
     _register_exception_handlers(app)
     return app
 
@@ -109,6 +113,17 @@ def _register_exception_handlers(app: FastAPI) -> None:
             content=error_payload(error, request_id),
             headers={"x-request-id": request_id},
         )
+
+
+def _mount_static_ui(app: FastAPI) -> None:
+    if not UI_STATIC_DIR.exists():
+        return
+
+    @app.get("/", include_in_schema=False)
+    def serve_local_ui() -> FileResponse:
+        return FileResponse(UI_STATIC_DIR / "index.html")
+
+    app.mount("/ui", StaticFiles(directory=UI_STATIC_DIR), name="ui")
 
 
 def _json_error(request: Request, exc: EgoError) -> JSONResponse:

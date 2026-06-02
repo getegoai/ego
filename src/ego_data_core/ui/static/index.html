@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ego Data Core</title>
+    <link rel="icon" href="/ui/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/ui/styles.css" />
+    <script defer src="/ui/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell" data-api-base="/api/v1">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">EDC</div>
+          <div>
+            <h1>Ego Data Core</h1>
+            <p>Local-first workspace</p>
+          </div>
+        </div>
+        <nav class="nav-tabs" aria-label="Primary">
+          <button class="nav-tab is-active" data-view="dashboard" type="button">Dashboard</button>
+          <button class="nav-tab" data-view="sources" type="button">Sources</button>
+          <button class="nav-tab" data-view="search" type="button">Search</button>
+          <button class="nav-tab" data-view="brief" type="button">Brief</button>
+          <button class="nav-tab" data-view="audit" type="button">Audit</button>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">Local API</div>
+            <h2 id="view-title">Dashboard</h2>
+          </div>
+          <div class="status-strip">
+            <span id="api-status" class="status-pill pending">Checking</span>
+            <span id="privacy-status" class="status-pill local">Local-only</span>
+            <button id="refresh-all" class="button secondary" type="button">Refresh</button>
+          </div>
+        </header>
+
+        <div id="error-banner" class="error-banner" hidden></div>
+
+        <section id="dashboard-view" class="view is-active" aria-labelledby="view-title">
+          <div class="metric-grid" id="dashboard-metrics"></div>
+          <div class="dashboard-grid">
+            <section class="surface">
+              <div class="section-heading">
+                <h3>Source Authorization</h3>
+                <span id="source-summary" class="subtle">Loading</span>
+              </div>
+              <div id="source-health" class="compact-list"></div>
+            </section>
+            <section class="surface">
+              <div class="section-heading">
+                <h3>Latest Brief</h3>
+                <button id="generate-brief" class="button secondary" type="button">Generate Today</button>
+              </div>
+              <div id="dashboard-brief" class="brief-preview"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="sources-view" class="view" aria-labelledby="view-title">
+          <div class="section-heading">
+            <h3>Sources</h3>
+            <span id="sources-count" class="subtle">0 sources</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Privacy</th>
+                  <th>Status</th>
+                  <th>Source ID</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody id="sources-table"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="search-view" class="view" aria-labelledby="view-title">
+          <form id="search-form" class="toolbar">
+            <label class="field grow">
+              <span>Query</span>
+              <input id="search-query" name="q" type="search" autocomplete="off" placeholder="daily brief" />
+            </label>
+            <label class="field">
+              <span>Source</span>
+              <select id="search-source" name="source_id">
+                <option value="">All sources</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>From</span>
+              <input id="search-from" name="date_from" type="date" />
+            </label>
+            <label class="field">
+              <span>To</span>
+              <input id="search-to" name="date_to" type="date" />
+            </label>
+            <button class="button primary" type="submit">Search</button>
+          </form>
+          <div class="section-heading">
+            <h3>Evidence Results</h3>
+            <span id="search-meta" class="subtle">Ready</span>
+          </div>
+          <div id="search-results" class="result-list"></div>
+        </section>
+
+        <section id="brief-view" class="view" aria-labelledby="view-title">
+          <div class="section-heading">
+            <h3>Daily Brief</h3>
+            <button id="refresh-brief" class="button secondary" type="button">Refresh Brief</button>
+          </div>
+          <article id="brief-detail" class="brief-detail"></article>
+        </section>
+
+        <section id="audit-view" class="view" aria-labelledby="view-title">
+          <div class="section-heading">
+            <h3>Audit Log</h3>
+            <button id="refresh-audit" class="button secondary" type="button">Refresh Audit</button>
+          </div>
+          <div id="audit-list" class="audit-list"></div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

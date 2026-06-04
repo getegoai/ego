@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-06-04
 **Branch**: `main`
-**Current phase**: M6 Minimum Closed Loop
-**Active issue**: none; next recommended issue is `EDC-030`
+**Current phase**: M6 API Contract Stable
+**Active issue**: none; next recommended issue is `EDC-022`
 
 ## Collaboration Model
 
@@ -49,10 +49,42 @@ Each implementation commit should include the relevant tests unless splitting is
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-016`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | Operator Bridge | Done | `EDC-021` completed: automation opportunities can become authorized dry-run action plans without executing computer actions. |
+| API contract | Done | `EDC-030` completed: generated OpenAPI is contract-tested and draft differences are documented. |
 | Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-030 - OpenAPI Contract Tests
+
+Status: completed.
+
+Position in the project:
+
+- This stabilizes the API surface after the minimum closed loop was completed.
+- It locks the core local API paths used by sources, vault/search, twin, briefs, actions, and audit.
+- It documents known differences between the original OpenAPI draft and the implemented v0.1 local API.
+
+What changed:
+
+- Added `tests/api/test_openapi_contract.py`.
+- Added `docs/api_contract.md`.
+- Updated README to identify `/openapi.json` as the generated v0.1 local API contract.
+- Contract tests now verify `/openapi.json`, core implemented paths, implementation extensions, draft-only differences, and key request schemas.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/api/test_openapi_contract.py` passed with 4 tests.
+
+Issues handled:
+
+- Draft-only `/vault/ingest`, `/vault/evidence/{evidence_id}`, `/projects/{project_id}`, and `/model-router/run` are documented as intentional current differences.
+- `/api/v1/search` is documented as the current Evidence/Vault search surface.
+- Work Graph and Automation routes are documented as v0.1 implementation extensions needed by the closed loop.
+
+Next iteration:
+
+- Start `EDC-022`: manual screenshot capture connector. API contract is now stable enough to extend ingestion beyond filesystem documents.
 
 ### EDC-021 - Operator Bridge Action Plan Dry-run
 

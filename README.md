@@ -21,6 +21,10 @@ python -m pip install -e ".[dev]"
 
 ## Run The Local API
 
+The API remains the v0.1 local API. FastAPI exposes the generated contract at
+`/openapi.json`, and `docs/api_contract.md` records differences from the draft
+OpenAPI file.
+
 ```powershell
 python -m ego_data_core.main
 ```

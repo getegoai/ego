@@ -74,6 +74,7 @@ class DailyBriefService:
             "task_count": len(context["tasks"]),
             "question_count": len(context["questions"]),
             "risk_count": len(context["risks"]),
+            "automation_count": len(context["automations"]),
             "data_health": context["data_health"],
         }
 
@@ -327,8 +328,19 @@ class DailyBriefService:
                 """,
                 (start, end),
             )
+            automations = _fetch_all_dicts(
+                connection,
+                """
+                SELECT *
+                FROM automations
+                WHERE created_at >= ? AND created_at < ?
+                ORDER BY created_at ASC, automation_id ASC
+                """,
+                (start, end),
+            )
             evidence_by_item = _evidence_by_work_item(connection)
             evidence_by_project = _evidence_by_project(connection)
+            evidence_by_automation = _evidence_by_automation(connection)
 
         for row in evidence:
             row["metadata"] = json.loads(row.pop("raw_metadata_json"))
@@ -343,6 +355,10 @@ class DailyBriefService:
             for row in rows:
                 row["metadata"] = json.loads(row.pop("metadata_json"))
                 row["evidence_ids"] = evidence_by_item.get((item_type, row[id_key]), [])
+        for row in automations:
+            row["metadata"] = json.loads(row.pop("metadata_json"))
+            row["pattern"] = json.loads(row.pop("pattern_json"))
+            row["evidence_ids"] = evidence_by_automation.get(row["automation_id"], [])
         return {
             "evidence": evidence,
             "enhancements": enhancements,
@@ -350,6 +366,7 @@ class DailyBriefService:
             "tasks": tasks,
             "questions": questions,
             "risks": risks,
+            "automations": automations,
             "data_health": DataHealthService(self.database_path).snapshot(target_date).to_dict(),
         }
 
@@ -465,6 +482,8 @@ def _build_report_items(context: Mapping[str, Any]) -> list[dict[str, Any]]:
         item = _work_item_report_item("risk", risk)
         item["severity"] = "medium"
         items.append(item)
+    for automation in context["automations"]:
+        items.append(_automation_report_item(automation))
 
     items.append(data_health_report_item(context["data_health"]))
 
@@ -488,6 +507,28 @@ def _work_item_report_item(item_type: str, row: Mapping[str, Any]) -> dict[str, 
     }
 
 
+def _automation_report_item(row: Mapping[str, Any]) -> dict[str, Any]:
+    risk_level = row.get("risk_level") or "medium"
+    return {
+        "item_type": "automation",
+        "title": row["title"],
+        "body": row.get("description"),
+        "severity": risk_level if risk_level in {"low", "medium", "high", "critical"} else "info",
+        "confidence": row.get("confidence"),
+        "inferred": True,
+        "evidence_ids": row.get("evidence_ids") or [],
+        "metadata": {
+            "automation_id": row["automation_id"],
+            "project_id": row.get("project_id"),
+            "risk_level": risk_level,
+            "required_authorization": row.get("metadata", {}).get(
+                "required_authorization"
+            ),
+            "suggested_action": row.get("metadata", {}).get("suggested_action"),
+        },
+    }
+
+
 def _brief_summary(
     context: Mapping[str, Any],
     items: Sequence[Mapping[str, Any]],
@@ -498,6 +539,7 @@ def _brief_summary(
         f"{len(context['tasks'])} task(s), "
         f"{len(context['questions'])} question(s), "
         f"{len(context['risks'])} risk(s), "
+        f"{len(context['automations'])} automation opportunity(ies), "
         f"{len(items)} brief item(s)."
     )
 
@@ -557,6 +599,22 @@ def _evidence_by_work_item(connection) -> dict[tuple[str, str], list[str]]:
     result: dict[tuple[str, str], list[str]] = {}
     for row in rows:
         result.setdefault((row["dst_type"], row["dst_id"]), []).append(row["evidence_id"])
+    return result
+
+
+def _evidence_by_automation(connection) -> dict[str, list[str]]:
+    rows = connection.execute(
+        """
+        SELECT dst_id AS automation_id, evidence_id
+        FROM graph_edges
+        WHERE dst_type = 'automation'
+          AND evidence_id IS NOT NULL
+        ORDER BY dst_id, evidence_id
+        """
+    ).fetchall()
+    result: dict[str, list[str]] = {}
+    for row in rows:
+        result.setdefault(row["automation_id"], []).append(row["evidence_id"])
     return result
 
 

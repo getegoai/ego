@@ -7,7 +7,11 @@ from typing import Any, Literal
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from ego_data_core.workgraph import WorkItemExtractor, work_item_to_dict
+from ego_data_core.workgraph import (
+    AutomationOpportunityService,
+    WorkItemExtractor,
+    work_item_to_dict,
+)
 
 router = APIRouter(prefix="/workgraph", tags=["workgraph"])
 
@@ -29,6 +33,16 @@ def extract_work_items() -> dict[str, Any]:
 @router.get("/items")
 def list_work_items() -> dict[str, Any]:
     return WorkItemExtractor().list_items()
+
+
+@router.post("/automations/discover")
+def discover_automation_opportunities() -> dict[str, Any]:
+    return AutomationOpportunityService().discover_opportunities()
+
+
+@router.get("/automations")
+def list_automation_opportunities() -> dict[str, Any]:
+    return AutomationOpportunityService().list_opportunities()
 
 
 @router.post("/items/{item_type}/{item_id}/feedback")

@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-06-02
 **Branch**: `main`
-**Current phase**: M5 Local Web UI
-**Active issue**: none; next recommended issue is `EDC-016`
+**Current phase**: M6 Operator Bridge readiness
+**Active issue**: none; next recommended issue is `EDC-021`
 
 ## Collaboration Model
 
@@ -47,11 +47,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Audit/source/vault scan | Done | `EDC-004` through `EDC-007` completed; scanner now writes version payloads through `VaultStorage`. |
 | Document parsing/search | Done | `EDC-008` and `EDC-009` completed: parsed evidence chunks are searchable through local FTS with LIKE fallback. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
-| Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
+| Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-016`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-016 - Automation Opportunity Discovery
+
+Status: completed.
+
+Position in the project:
+
+- This moves Ego from observing work items to proposing safe next actions.
+- It is the required upstream input for Operator Bridge dry-run.
+- It keeps the safety boundary intact: opportunities are proposed only, and no files are moved, deleted, sent, uploaded, or modified.
+
+What changed:
+
+- Added `src/ego_data_core/workgraph/automation_opportunities.py`.
+- Added `AutomationOpportunityService`.
+- Added `AutomationOpportunityRecord` and `automation_opportunity_to_dict(...)`.
+- Added `POST /api/v1/workgraph/automations/discover`.
+- Added `GET /api/v1/workgraph/automations`.
+- Daily Brief now includes automation opportunities as `automation` report items.
+- Added `tests/workgraph/test_automation_opportunities.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/workgraph/test_automation_opportunities.py` passed with 2 tests.
+- `.venv\Scripts\python -m pytest tests/workgraph/test_automation_opportunities.py tests/brief/test_daily_brief.py tests/brief/test_markdown_export.py` passed with 7 tests.
+
+Issues handled:
+
+- Duplicate files generate high-risk review proposals with evidence links.
+- Loose intake folders such as `Downloads` generate high-risk review proposals before any move action.
+- Any candidate action containing move, delete, send, or upload is forced to high risk and requires authorization.
+- Discovery is idempotent through a stable `discovery_key`.
+
+Next iteration:
+
+- Start `EDC-021`: Operator Bridge dry-run. It will convert automation opportunities into action plans, enforce authorization, and produce dry-run steps without controlling the computer.
 
 ### EDC-019 - Local Web UI Minimum Version
 

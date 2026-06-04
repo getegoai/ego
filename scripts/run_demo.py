@@ -52,6 +52,7 @@ def run_demo(
 ) -> dict[str, Any]:
     from ego_data_core.cli import run as cli_run
     from ego_data_core.vault import VaultStorage
+    from ego_data_core.workgraph import AutomationOpportunityService
 
     init_db = _run_cli(cli_run, ["init-db"])
     source = _run_cli(
@@ -71,6 +72,8 @@ def run_demo(
         cli_run,
         ["enhance", "--date", report_date, "--type", enhancement_type],
     )
+    automations = AutomationOpportunityService().discover_opportunities()
+    action_summary = _run_operator_dry_run(automations)
     brief = _run_cli(
         cli_run,
         ["brief", "daily", "--date", report_date, "--force"],
@@ -89,6 +92,8 @@ def run_demo(
         "report_date": report_date,
         "scan": scan,
         "enhance": enhance,
+        "automations": automations,
+        "operator_dry_run": action_summary,
         "report_id": brief["report_id"],
         "markdown_uri": markdown_uri,
         "markdown_path": str(markdown_path),
@@ -104,6 +109,37 @@ def _run_cli(cli_run, argv: list[str]) -> dict[str, Any]:
         raise RuntimeError(stderr.getvalue().strip() or f"command failed: {' '.join(argv)}")
     text = stdout.getvalue().strip()
     return json.loads(text) if text else {}
+
+
+def _run_operator_dry_run(automations: dict[str, Any]) -> dict[str, Any]:
+    from ego_data_core.operator import OperatorBridge
+
+    if not automations["items"]:
+        return {
+            "status": "no_automation_opportunities",
+            "action_id": None,
+            "blocked_status": None,
+            "dry_run_status": None,
+            "dry_run_steps": [],
+        }
+
+    opportunity = automations["items"][0]
+    bridge = OperatorBridge()
+    action = bridge.propose_action(opportunity["automation_id"])
+    blocked = bridge.execute_action(action["action_id"])
+    authorized = bridge.authorize_action(action["action_id"])
+    executed = bridge.execute_action(action["action_id"])
+    return {
+        "status": "completed",
+        "automation_id": opportunity["automation_id"],
+        "action_id": action["action_id"],
+        "risk_level": action["risk_level"],
+        "requires_authorization": action["requires_authorization"],
+        "blocked_status": blocked["status"],
+        "authorization_id": authorized["authorization_id"],
+        "dry_run_status": executed["status"],
+        "dry_run_steps": executed["dry_run_steps"],
+    }
 
 
 def _build_parser() -> argparse.ArgumentParser:

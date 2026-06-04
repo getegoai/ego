@@ -23,7 +23,10 @@ KNOWN_AUDIT_EVENT_TYPES = frozenset(
         "model_invoked",
         "policy_blocked",
         "brief_generated",
+        "action_proposed",
         "action_authorized",
+        "action_execute_blocked",
+        "action_executed",
         "error",
     }
 )

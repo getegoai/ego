@@ -34,8 +34,14 @@ def test_demo_script_generates_evidence_backed_brief(tmp_path: Path) -> None:
     assert payload["scan"]["created_count"] >= 4
     assert payload["scan"]["parsed_count"] >= 4
     assert payload["enhance"]["job"]["status"] == "succeeded"
+    assert payload["automations"]["total"] >= 1
+    assert payload["operator_dry_run"]["status"] == "completed"
+    assert payload["operator_dry_run"]["blocked_status"] == "requires_authorization"
+    assert payload["operator_dry_run"]["dry_run_status"] == "dry_run_completed"
+    assert payload["operator_dry_run"]["dry_run_steps"]
     assert payload["audit_total"] >= 1
     assert "Ego Project Plan" in markdown
+    assert "automation opportunity" in markdown
     assert "Evidence: [ev_" in markdown
     assert "Evidence: none" not in markdown
     assert str(Path("demo/sample_workspace").resolve()) not in markdown

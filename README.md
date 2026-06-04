@@ -79,7 +79,9 @@ python scripts/run_demo.py
 ```
 
 The demo uses synthetic files in `demo/sample_workspace` and prints the generated
-Daily Brief `markdown_path`.
+Daily Brief `markdown_path`. It also runs the minimum closed loop: scan, parse,
+enhance, discover automation opportunities, create an Operator Bridge action
+plan, block execution before authorization, authorize, and complete a dry-run.
 
 Supported profiles:
 

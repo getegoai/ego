@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from ego_data_core import __version__
+from ego_data_core.api.routes.actions import router as actions_router
 from ego_data_core.api.routes.audit import router as audit_router
 from ego_data_core.api.routes.briefs import router as briefs_router
 from ego_data_core.api.routes.health import router as health_router
@@ -41,6 +42,7 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json",
         lifespan=_lifespan,
     )
+    app.include_router(actions_router, prefix="/api/v1")
     app.include_router(audit_router, prefix="/api/v1")
     app.include_router(briefs_router, prefix="/api/v1")
     app.include_router(health_router, prefix="/api/v1")

@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-06-02
+**Last updated**: 2026-06-04
 **Branch**: `main`
-**Current phase**: M6 Operator Bridge readiness
-**Active issue**: none; next recommended issue is `EDC-021`
+**Current phase**: M6 Minimum Closed Loop
+**Active issue**: none; next recommended issue is `EDC-030`
 
 ## Collaboration Model
 
@@ -48,10 +48,53 @@ Each implementation commit should include the relevant tests unless splitting is
 | Document parsing/search | Done | `EDC-008` and `EDC-009` completed: parsed evidence chunks are searchable through local FTS with LIKE fallback. |
 | Model/router/enhancement | Done | `EDC-010`, `EDC-011`, `EDC-013`, and `EDC-020` completed. |
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-016`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
+| Operator Bridge | Done | `EDC-021` completed: automation opportunities can become authorized dry-run action plans without executing computer actions. |
 | Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-021 - Operator Bridge Action Plan Dry-run
+
+Status: completed.
+
+Position in the project:
+
+- This completes the v0.1 minimum closed loop: local files become evidence, evidence becomes work context and automation opportunities, opportunities become action plans, and action plans can be dry-run under authorization control.
+- It keeps Operator Bridge strictly non-destructive in v0.1. No files, windows, network calls, uploads, sends, or computer controls are executed.
+- It gives the demo a concrete end-to-end safety story: execution is blocked before authorization and remains dry-run after authorization.
+
+What changed:
+
+- Added `src/ego_data_core/operator/bridge.py`.
+- Added `ActionPlanRecord`.
+- Added `OperatorBridge.propose_action(...)`.
+- Added `OperatorBridge.authorize_action(...)`.
+- Added `OperatorBridge.execute_action(...)`.
+- Added `POST /api/v1/actions/propose`.
+- Added `POST /api/v1/actions/{action_id}/authorize`.
+- Added `POST /api/v1/actions/{action_id}/execute`.
+- Extended the demo loop to discover automation opportunities and run an authorized dry-run action plan.
+- Added `tests/operator/test_action_dry_run.py`.
+- Extended `tests/demo/test_demo_smoke.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/operator/test_action_dry_run.py` passed with 2 tests.
+- `.venv\Scripts\python -m pytest tests/operator/test_action_dry_run.py tests/demo/test_demo_smoke.py` passed with 3 tests.
+- `.venv\Scripts\python -m pytest` passed with 122 tests.
+- `.venv\Scripts\python scripts/run_demo.py --data-home .\.ego_data_core\closed_loop_demo --date 2026-06-04` completed the minimum closed loop: 5 evidence items parsed, 1 automation opportunity found, action execution blocked before authorization, and authorized dry-run completed with 4 dry-run steps.
+
+Issues handled:
+
+- `execute` before authorization returns `requires_authorization`.
+- `authorize` writes an authorization record and audit event.
+- Authorized `execute` returns `dry_run_completed` and marks action steps as skipped with `dry_run_only`.
+- propose, authorize, blocked execute, and dry-run execute all write audit events.
+
+Next iteration:
+
+- Start `EDC-030`: OpenAPI contract tests. The minimum closed loop now has enough API surface that contract drift becomes the next practical risk.
 
 ### EDC-016 - Automation Opportunity Discovery
 

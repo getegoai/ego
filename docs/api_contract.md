@@ -1,6 +1,6 @@
 # Ego Data Core API Contract
 
-Last updated: 2026-06-04
+Last updated: 2026-06-08
 
 This document tracks the v0.1 local API contract implemented by FastAPI and the
 known differences from `docs/ego_data_core_v0_1_openapi.yaml`.
@@ -42,6 +42,7 @@ These routes are part of the current implementation and are also contract-tested
 
 | Area | Method | Path |
 |---|---:|---|
+| Screen | POST | `/api/v1/screen/import` |
 | Projects | POST | `/api/v1/projects/discover` |
 | Projects | GET | `/api/v1/projects` |
 | Projects | POST | `/api/v1/projects/{project_id}/feedback` |
@@ -67,6 +68,7 @@ The implementation also adds routes that were not in the draft but are required
 for the current closed loop:
 
 - `/api/v1/search`
+- `/api/v1/screen/import`
 - `/api/v1/workgraph/extract`
 - `/api/v1/workgraph/items`
 - `/api/v1/workgraph/automations`

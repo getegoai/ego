@@ -12,6 +12,7 @@ from ego_data_core.audit import list_audit_logs
 from ego_data_core.brief import DailyBriefService, daily_brief_to_dict
 from ego_data_core.connectors.documents import DocumentParser
 from ego_data_core.connectors.filesystem import FilesystemScanner
+from ego_data_core.connectors.screen import ScreenCaptureService, screenshot_capture_to_dict
 from ego_data_core.connectors.source_service import SourceService, source_to_dict
 from ego_data_core.kernel.time import local_date_bounds_as_utc, normalize_report_date
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
@@ -81,6 +82,18 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("source_id")
     scan.add_argument("--parse-limit", type=int)
     scan.set_defaults(handler=_cmd_scan)
+
+    screen = subparsers.add_parser("screen", help="Import manual screenshots.")
+    screen_subparsers = screen.add_subparsers(dest="screen_command", required=True)
+    screen_import = screen_subparsers.add_parser(
+        "import",
+        help="Import an existing image as screenshot evidence.",
+    )
+    screen_import.add_argument("image_path")
+    screen_import.add_argument("--source-id", required=True)
+    screen_import.add_argument("--active-window")
+    screen_import.add_argument("--app-name")
+    screen_import.set_defaults(handler=_cmd_screen_import)
 
     enhance = subparsers.add_parser("enhance", help="Enhance evidence for a date.")
     enhance.add_argument("--date", dest="report_date")
@@ -159,6 +172,16 @@ def _cmd_scan(args: argparse.Namespace) -> dict[str, Any]:
         "parsed_count": sum(1 for item in parse_results if item.status == "succeeded"),
         "parse_failed_count": sum(1 for item in parse_results if item.status == "failed"),
     }
+
+
+def _cmd_screen_import(args: argparse.Namespace) -> dict[str, Any]:
+    record = ScreenCaptureService().import_image_file(
+        source_id=args.source_id,
+        image_path=args.image_path,
+        active_window=args.active_window,
+        app_name=args.app_name,
+    )
+    return screenshot_capture_to_dict(record)
 
 
 def _cmd_enhance(args: argparse.Namespace) -> dict[str, Any]:

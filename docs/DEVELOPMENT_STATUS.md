@@ -1,9 +1,9 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-06-04
+**Last updated**: 2026-06-08
 **Branch**: `main`
-**Current phase**: M6 API Contract Stable
-**Active issue**: none; next recommended issue is `EDC-022`
+**Current phase**: M6 Screenshot Evidence Intake
+**Active issue**: none; next recommended issue is `EDC-023`
 
 ## Collaboration Model
 
@@ -50,10 +50,47 @@ Each implementation commit should include the relevant tests unless splitting is
 | Work graph and brief | Done | `EDC-014`, `EDC-015`, `EDC-016`, `EDC-017`, `EDC-018`, and `EDC-027` completed. |
 | Operator Bridge | Done | `EDC-021` completed: automation opportunities can become authorized dry-run action plans without executing computer actions. |
 | API contract | Done | `EDC-030` completed: generated OpenAPI is contract-tested and draft differences are documented. |
+| Screen capture | Done | `EDC-022` completed: existing image files can be imported as screenshot evidence through API or CLI. |
 | Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-022 - Manual Screenshot Capture Connector
+
+Status: completed.
+
+Position in the project:
+
+- This extends the evidence pipeline beyond filesystem documents into screen-state evidence.
+- It is the required upstream step for `EDC-023` Screenshot OCR Enhancement.
+- It keeps v0.1 capture manual and bounded: existing image import only, no continuous recording and no HDMI driver.
+
+What changed:
+
+- Added `src/ego_data_core/connectors/screen/capture.py`.
+- Added `ScreenCaptureService.import_image_file(...)`.
+- Added `POST /api/v1/screen/import`.
+- Added `ego screen import <image_path> --source-id <src_id>`.
+- Screenshot import now creates `raw_objects`, `object_versions`, and `evidence` with `evidence_type=screenshot`.
+- Screenshot metadata records optional `active_window` and `app_name`.
+- Updated README and API contract docs.
+- Added `tests/connectors/test_screen_capture.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/connectors/test_screen_capture.py -q` passed with 4 tests.
+- `.venv\Scripts\python -m pytest tests/api/test_openapi_contract.py -q` passed with 4 tests.
+
+Issues handled:
+
+- API and CLI responses return vault IDs and `vault://` URIs, not the original absolute image path.
+- Source validation happens before vault copy to avoid orphan payloads for invalid source IDs.
+- Unsupported image MIME types fail with a validation error instead of entering the vault.
+
+Next iteration:
+
+- Start `EDC-023`: generate OCR-related enhancements from screenshot evidence. The first pass should tolerate missing OCR engines and write an explicit unsupported status.
 
 ### EDC-030 - OpenAPI Contract Tests
 
@@ -1023,6 +1060,8 @@ EDC-000 -> EDC-001 -> EDC-002 -> EDC-003 -> EDC-029 -> EDC-028
   -> EDC-004 -> EDC-005 -> EDC-006 -> EDC-007
   -> EDC-008 -> EDC-010 -> EDC-011 -> EDC-013
   -> EDC-014/EDC-015 minimal -> EDC-017 -> EDC-018 -> EDC-025 -> EDC-026
+  -> EDC-027 -> EDC-020 -> EDC-009 -> EDC-019 -> EDC-016 -> EDC-021
+  -> EDC-030 -> EDC-022 -> EDC-023
 ```
 
 ## Current Decisions

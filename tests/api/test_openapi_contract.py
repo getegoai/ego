@@ -23,6 +23,7 @@ CORE_OPERATIONS = {
 }
 
 IMPLEMENTED_V0_1_EXTENSIONS = {
+    ("post", "/api/v1/screen/import"),
     ("post", "/api/v1/projects/discover"),
     ("get", "/api/v1/projects"),
     ("post", "/api/v1/projects/{project_id}/feedback"),
@@ -109,6 +110,12 @@ def test_key_request_schemas_remain_stable(client: TestClient) -> None:
     enhance_schema = schemas["CreateEnhancementJobRequest"]
     assert set(enhance_schema["required"]) == {"evidence_ids", "enhancement_type"}
     assert "strategy" in enhance_schema["properties"]
+
+    screenshot_schema = schemas["ImportScreenshotRequest"]
+    assert set(screenshot_schema["required"]) == {"source_id", "image_path"}
+    assert "active_window" in screenshot_schema["properties"]
+    assert "app_name" in screenshot_schema["properties"]
+    assert "metadata" in screenshot_schema["properties"]
 
     brief_schema = schemas["GenerateBriefRequest"]
     assert "report_type" in brief_schema["properties"]

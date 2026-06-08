@@ -3,8 +3,9 @@
 Ego Data Core v0.1 is a local-first, evidence-first personal data core.
 
 The current development build can scan a local folder, store evidence in the
-vault, parse document text, generate rule-based enhancements, discover work
-graph items, and export an evidence-backed Daily Brief as Markdown.
+vault, import manual screenshot evidence, parse document text, generate
+rule-based enhancements, discover work graph items, and export an
+evidence-backed Daily Brief as Markdown.
 
 ## Requirements
 
@@ -66,6 +67,31 @@ ego audit tail --event-type brief_generated
 `source add` prints the generated `source_id`; pass that value to `ego scan`.
 `brief daily` prints `metadata.markdown_uri`, which points to the exported
 Markdown file under the local `vault/briefs` directory.
+
+## Import Screenshot Evidence
+
+Create a screen source through the local API:
+
+```powershell
+$source = Invoke-RestMethod `
+  -Method Post `
+  -Uri http://127.0.0.1:8765/api/v1/sources `
+  -ContentType "application/json" `
+  -Body '{"source_type":"screen","name":"Manual Screenshots","root_uri":"screen://manual"}'
+```
+
+Then import an existing image as screenshot evidence:
+
+```powershell
+ego screen import "C:\path\to\screenshot.png" `
+  --source-id $source.source_id `
+  --active-window "Example Window" `
+  --app-name "Example App"
+```
+
+The command prints `raw_object_id`, `version_id`, and `evidence_id`. The image is
+copied into the local vault; the CLI/API response does not return the original
+absolute image path.
 
 You can also run the CLI module directly:
 

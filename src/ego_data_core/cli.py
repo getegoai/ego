@@ -17,7 +17,12 @@ from ego_data_core.connectors.source_service import SourceService, source_to_dic
 from ego_data_core.kernel.time import local_date_bounds_as_utc, normalize_report_date
 from ego_data_core.nightshift import NightShiftQueue, NightShiftWorker
 from ego_data_core.storage.db import get_connection, run_migrations
-from ego_data_core.twin import EnhancementService, register_enhancement_handlers
+from ego_data_core.twin import (
+    EnhancementService,
+    MockOCRAdapter,
+    ScreenshotOCRService,
+    register_enhancement_handlers,
+)
 from ego_data_core.workgraph import ProjectDiscoveryService, WorkItemExtractor
 
 
@@ -94,6 +99,14 @@ def build_parser() -> argparse.ArgumentParser:
     screen_import.add_argument("--active-window")
     screen_import.add_argument("--app-name")
     screen_import.set_defaults(handler=_cmd_screen_import)
+    screen_ocr = screen_subparsers.add_parser(
+        "ocr",
+        help="Generate OCR enhancements for screenshot evidence.",
+    )
+    screen_ocr.add_argument("evidence_ids", nargs="+")
+    screen_ocr.add_argument("--adapter", choices=["unsupported", "mock"], default="unsupported")
+    screen_ocr.add_argument("--mock-text")
+    screen_ocr.set_defaults(handler=_cmd_screen_ocr)
 
     enhance = subparsers.add_parser("enhance", help="Enhance evidence for a date.")
     enhance.add_argument("--date", dest="report_date")
@@ -182,6 +195,13 @@ def _cmd_screen_import(args: argparse.Namespace) -> dict[str, Any]:
         app_name=args.app_name,
     )
     return screenshot_capture_to_dict(record)
+
+
+def _cmd_screen_ocr(args: argparse.Namespace) -> dict[str, Any]:
+    adapter = None
+    if args.adapter == "mock":
+        adapter = MockOCRAdapter(text=args.mock_text or "Mock OCR text")
+    return ScreenshotOCRService(adapter=adapter).enhance_screenshots(args.evidence_ids)
 
 
 def _cmd_enhance(args: argparse.Namespace) -> dict[str, Any]:

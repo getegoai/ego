@@ -3,9 +3,9 @@
 Ego Data Core v0.1 is a local-first, evidence-first personal data core.
 
 The current development build can scan a local folder, store evidence in the
-vault, import manual screenshot evidence, parse document text, generate
-rule-based enhancements, discover work graph items, and export an
-evidence-backed Daily Brief as Markdown.
+vault, import manual screenshot evidence, generate screenshot OCR enhancements,
+parse document text, generate rule-based enhancements, discover work graph
+items, and export an evidence-backed Daily Brief as Markdown.
 
 ## Requirements
 
@@ -92,6 +92,22 @@ ego screen import "C:\path\to\screenshot.png" `
 The command prints `raw_object_id`, `version_id`, and `evidence_id`. The image is
 copied into the local vault; the CLI/API response does not return the original
 absolute image path.
+
+Generate OCR-related enhancements from the screenshot evidence:
+
+```powershell
+ego screen ocr ev_xxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Without a configured OCR engine, the command writes an explicit `unsupported`
+OCR enhancement instead of failing the workflow. For local demos and tests, use
+the mock adapter:
+
+```powershell
+ego screen ocr ev_xxxxxxxxxxxxxxxxxxxxxxxxxx `
+  --adapter mock `
+  --mock-text "Visible text from the screenshot"
+```
 
 You can also run the CLI module directly:
 

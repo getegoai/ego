@@ -27,6 +27,7 @@ KNOWN_AUDIT_EVENT_TYPES = frozenset(
         "action_authorized",
         "action_execute_blocked",
         "action_executed",
+        "screenshot_ocr_generated",
         "error",
     }
 )

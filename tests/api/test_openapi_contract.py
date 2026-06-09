@@ -24,6 +24,7 @@ CORE_OPERATIONS = {
 
 IMPLEMENTED_V0_1_EXTENSIONS = {
     ("post", "/api/v1/screen/import"),
+    ("post", "/api/v1/twin/screens/ocr"),
     ("post", "/api/v1/projects/discover"),
     ("get", "/api/v1/projects"),
     ("post", "/api/v1/projects/{project_id}/feedback"),
@@ -116,6 +117,11 @@ def test_key_request_schemas_remain_stable(client: TestClient) -> None:
     assert "active_window" in screenshot_schema["properties"]
     assert "app_name" in screenshot_schema["properties"]
     assert "metadata" in screenshot_schema["properties"]
+
+    screenshot_ocr_schema = schemas["RunScreenshotOCRRequest"]
+    assert set(screenshot_ocr_schema["required"]) == {"evidence_ids"}
+    assert screenshot_ocr_schema["properties"]["adapter"]["default"] == "unsupported"
+    assert "mock_text" in screenshot_ocr_schema["properties"]
 
     brief_schema = schemas["GenerateBriefRequest"]
     assert "report_type" in brief_schema["properties"]

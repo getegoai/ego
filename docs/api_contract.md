@@ -43,6 +43,7 @@ These routes are part of the current implementation and are also contract-tested
 | Area | Method | Path |
 |---|---:|---|
 | Screen | POST | `/api/v1/screen/import` |
+| Twin | POST | `/api/v1/twin/screens/ocr` |
 | Projects | POST | `/api/v1/projects/discover` |
 | Projects | GET | `/api/v1/projects` |
 | Projects | POST | `/api/v1/projects/{project_id}/feedback` |
@@ -69,6 +70,7 @@ for the current closed loop:
 
 - `/api/v1/search`
 - `/api/v1/screen/import`
+- `/api/v1/twin/screens/ocr`
 - `/api/v1/workgraph/extract`
 - `/api/v1/workgraph/items`
 - `/api/v1/workgraph/automations`

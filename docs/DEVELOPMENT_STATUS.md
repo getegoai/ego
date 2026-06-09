@@ -2,8 +2,8 @@
 
 **Last updated**: 2026-06-08
 **Branch**: `main`
-**Current phase**: M6 Screenshot Evidence Intake
-**Active issue**: none; next recommended issue is `EDC-023`
+**Current phase**: M6 Screenshot OCR Enhancement
+**Active issue**: none; next recommended issue is `EDC-024`
 
 ## Collaboration Model
 
@@ -51,10 +51,50 @@ Each implementation commit should include the relevant tests unless splitting is
 | Operator Bridge | Done | `EDC-021` completed: automation opportunities can become authorized dry-run action plans without executing computer actions. |
 | API contract | Done | `EDC-030` completed: generated OpenAPI is contract-tested and draft differences are documented. |
 | Screen capture | Done | `EDC-022` completed: existing image files can be imported as screenshot evidence through API or CLI. |
+| Screenshot OCR | Done | `EDC-023` completed: screenshot evidence can produce OCR text and screen-state enhancements with an unsupported fallback. |
 | Local Web UI | Done | `EDC-019` completed: root URL serves a local-only browser workspace for dashboard, sources, search, brief, and audit. |
 | CLI/demo | Done | `EDC-025` and `EDC-026` completed: CLI loop plus synthetic one-command demo. |
 
 ## Latest Iteration
+
+### EDC-023 - Screenshot OCR Enhancement
+
+Status: completed.
+
+Position in the project:
+
+- This turns screenshot evidence into Twin-level enhancements rather than leaving images as opaque vault payloads.
+- It completes the minimum screen evidence loop: import screenshot -> create screenshot evidence -> generate OCR/screen-state enhancements -> query linked enhancements.
+- It keeps optional OCR engines out of the critical path. v0.1 can record `unsupported` cleanly when OCR is unavailable.
+
+What changed:
+
+- Added `src/ego_data_core/twin/screenshot_ocr.py`.
+- Added `OCRAdapter`, `UnsupportedOCRAdapter`, and `MockOCRAdapter`.
+- Added `ScreenshotOCRService.enhance_screenshots(...)`.
+- Added `ocr_text` enhancements linked to screenshot evidence.
+- Added `screen_state` enhancements preserving `active_window`, `app_name`, regions, and `image_pixels` coordinate metadata.
+- Added `POST /api/v1/twin/screens/ocr`.
+- Added `ego screen ocr <evidence_id>`.
+- Updated README and API contract docs.
+- Added `tests/twin/test_screenshot_ocr.py`.
+
+Validation:
+
+- `.venv\Scripts\python -m pytest tests/twin/test_screenshot_ocr.py -q` passed with 5 tests.
+- `.venv\Scripts\python -m pytest tests/connectors/test_screen_capture.py tests/twin/test_screenshot_ocr.py tests/api/test_openapi_contract.py tests/cli/test_cli.py -q` passed with 16 tests.
+- `.venv\Scripts\python -m pytest -q` passed with 135 tests.
+
+Issues handled:
+
+- No OCR environment is treated as an explicit unsupported result, not a crash.
+- The database status column cannot store `unsupported`; the `ocr_text` enhancement uses `status=error` while its content carries `status=unsupported`.
+- OCR and screen-state enhancements both link back to the source screenshot evidence.
+- The mock adapter exists only as a deterministic local/dev path until a real OCR adapter is selected.
+
+Next iteration:
+
+- Start `EDC-024`: Compute Fabric node registration. This will prepare local and trusted compute capability records before model/runtime scheduling grows.
 
 ### EDC-022 - Manual Screenshot Capture Connector
 
@@ -1061,7 +1101,7 @@ EDC-000 -> EDC-001 -> EDC-002 -> EDC-003 -> EDC-029 -> EDC-028
   -> EDC-008 -> EDC-010 -> EDC-011 -> EDC-013
   -> EDC-014/EDC-015 minimal -> EDC-017 -> EDC-018 -> EDC-025 -> EDC-026
   -> EDC-027 -> EDC-020 -> EDC-009 -> EDC-019 -> EDC-016 -> EDC-021
-  -> EDC-030 -> EDC-022 -> EDC-023
+  -> EDC-030 -> EDC-022 -> EDC-023 -> EDC-024
 ```
 
 ## Current Decisions

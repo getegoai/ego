@@ -48,6 +48,7 @@ EgoLink 产生受控事件与证据
 - [2026-07 重新定位分析](docs/REPOSITIONING_2026-07.md)
 - [总项目开发状态](docs/DEVELOPMENT_STATUS.md)
 - [EgoBase 工作区](projects/egobase/README.md)
+- [EgoBase Product Charter](projects/egobase/docs/PRODUCT_CHARTER.md)
 - [Ego Data Core](projects/egobase/data-core/README.md)
 
 运行现有 Data Core：

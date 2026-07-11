@@ -1,6 +1,7 @@
 # EgoBase
 
-**Status:** product reset / software-first validation  
+**Status:** product reset / software-first validation
+
 **Working definition:** 家庭与个人设备之间的私有 AI 信任中枢，而不是通用“本地大模型盒子”。
 
 ## Working Product Position
@@ -65,3 +66,5 @@ egobase/
   data-core/        current local evidence and agent runtime prototype
   docs/             product reset and future EgoBase-specific decisions
 ```
+
+Current decision document: [Product Charter](docs/PRODUCT_CHARTER.md).

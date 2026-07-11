@@ -1,9 +1,17 @@
 # Ego Data Core Development Status
 
-**Last updated**: 2026-06-08
+**Last updated**: 2026-07-12
 **Branch**: `main`
-**Current phase**: M6 Screenshot OCR Enhancement
-**Active issue**: none; next recommended issue is `EDC-024`
+**Current phase**: v0.1 technical loop complete / EgoBase product reset
+**Active issue**: paused; `EDC-024` is frozen pending EgoLink-EgoBase contract validation
+
+## Parent Program Note
+
+This project moved to `projects/egobase/data-core` on 2026-07-12. It is now
+treated as the software evidence/agent runtime prototype for EgoBase, not the
+complete Ego product or a finalized hardware definition. The original v0.1
+taskbook remains historical execution evidence; new work follows the parent
+program status at `../../../../docs/DEVELOPMENT_STATUS.md`.
 
 ## Collaboration Model
 
@@ -92,9 +100,9 @@ Issues handled:
 - OCR and screen-state enhancements both link back to the source screenshot evidence.
 - The mock adapter exists only as a deterministic local/dev path until a real OCR adapter is selected.
 
-Next iteration:
+Historical next iteration:
 
-- Start `EDC-024`: Compute Fabric node registration. This will prepare local and trusted compute capability records before model/runtime scheduling grows.
+- `EDC-024` was originally next. It is now frozen pending the parent EgoBase product and EgoLink contract reset.
 
 ### EDC-022 - Manual Screenshot Capture Connector
 
@@ -1093,7 +1101,10 @@ Next iteration:
 
 - Start `EDC-001`: add SQLite initialization and migration management using `docs/ego_data_core_v0_1_schema.sqlite.sql`.
 
-## Near-Term Execution Order
+## Historical v0.1 Execution Order
+
+This sequence records the original Data Core plan. It no longer authorizes
+`EDC-024`; current work is governed by the parent program status.
 
 ```text
 EDC-000 -> EDC-001 -> EDC-002 -> EDC-003 -> EDC-029 -> EDC-028

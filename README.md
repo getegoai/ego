@@ -1,148 +1,61 @@
-# Ego Data Core
+# Project Ego
 
-Ego Data Core v0.1 is a local-first, evidence-first personal data core.
+Ego 是一个面向个人长期使用的私有 AI 系统项目，而不是单一硬件、单一模型或单一应用。
 
-The current development build can scan a local folder, store evidence in the
-vault, import manual screenshot evidence, generate screenshot OCR enhancements,
-parse document text, generate rule-based enhancements, discover work graph
-items, and export an evidence-backed Daily Brief as Markdown.
+当前总项目正在进行产品边界重置。新的组织原则是：
 
-## Requirements
+- `EgoLink` 负责随身感知、定位、安全交互和低功耗事件入口；
+- `EgoBase` 负责家庭/本地可信运行、长期状态、策略、设备协同和算力调度；
+- `Ego Data Core` 是 EgoBase 可复用的软件底座之一，负责 Evidence、Enhancement、Work Graph、Brief、Policy 和 Audit；
+- `Ego Operator` 是跨项目的受控行动能力，不再单独代表整个 Ego 产品；
+- 云端只作为可选增强、远程中继和设备服务，不作为用户数据与身份的唯一控制者。
 
-- Python 3.11 or newer
-- pip
+## Repository Role
 
-## Setup
+这个仓库现在承担 Ego 总项目的组合管理与 EgoBase 工作区职责：
+
+```text
+ego/
+  docs/                         总项目定位、路线与状态
+  projects/
+    egobase/                    EgoBase 产品与软件工作区
+      data-core/                已实现的 Ego Data Core v0.1
+    egolink/                    外部独立仓库的登记入口
+    legacy/                     旧 Agent / Kernel 资产登记
+```
+
+EgoLink 仍保留在独立仓库中，以避免破坏其活跃开发历史和发布流程。详见
+[项目登记](projects/README.md)。
+
+## Current Direction
+
+当前优先级不是继续堆叠 EgoBase 硬件规格，而是先证明一个跨设备产品闭环：
+
+```text
+EgoLink 产生受控事件与证据
+  -> EgoBase 接收并保留长期状态
+  -> 本地策略判断与模型增强
+  -> 用户收到有价值的提醒、解释或行动建议
+  -> 用户授权后执行并形成审计
+```
+
+在这个闭环被真实用户连续使用前，EgoBase 以现有 PC/迷你主机作为参考运行环境，
+不启动专用硬件量产定义。
+
+## Start Here
+
+- [总项目产品组合](docs/PRODUCT_PORTFOLIO.md)
+- [2026-07 重新定位分析](docs/REPOSITIONING_2026-07.md)
+- [总项目开发状态](docs/DEVELOPMENT_STATUS.md)
+- [EgoBase 工作区](projects/egobase/README.md)
+- [Ego Data Core](projects/egobase/data-core/README.md)
+
+运行现有 Data Core：
 
 ```powershell
+cd projects\egobase\data-core
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
+python scripts\run_demo.py
 ```
-
-## Run The Local API
-
-The API remains the v0.1 local API. FastAPI exposes the generated contract at
-`/openapi.json`, and `docs/api_contract.md` records differences from the draft
-OpenAPI file.
-
-```powershell
-python -m ego_data_core.main
-```
-
-Or:
-
-```powershell
-uvicorn ego_data_core.api.app:app --host 127.0.0.1 --port 8765
-```
-
-Health check:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8765/api/v1/health
-```
-
-## Run The Local Web UI
-
-Start the local API, then open:
-
-```powershell
-http://127.0.0.1:8765
-```
-
-The UI shows the local API status, source authorization status, evidence search,
-latest Daily Brief, and audit log. It uses only local `/api/v1/*` endpoints.
-
-## Run A CLI Loop
-
-```powershell
-ego init-db
-ego source add "C:\path\to\your\folder" --name "My Documents"
-ego scan src_xxxxxxxxxxxxxxxxxxxxxxxxxx
-ego enhance --date 2026-05-31 --type tag
-ego brief daily --date 2026-05-31 --force
-ego audit tail --event-type brief_generated
-```
-
-`source add` prints the generated `source_id`; pass that value to `ego scan`.
-`brief daily` prints `metadata.markdown_uri`, which points to the exported
-Markdown file under the local `vault/briefs` directory.
-
-## Import Screenshot Evidence
-
-Create a screen source through the local API:
-
-```powershell
-$source = Invoke-RestMethod `
-  -Method Post `
-  -Uri http://127.0.0.1:8765/api/v1/sources `
-  -ContentType "application/json" `
-  -Body '{"source_type":"screen","name":"Manual Screenshots","root_uri":"screen://manual"}'
-```
-
-Then import an existing image as screenshot evidence:
-
-```powershell
-ego screen import "C:\path\to\screenshot.png" `
-  --source-id $source.source_id `
-  --active-window "Example Window" `
-  --app-name "Example App"
-```
-
-The command prints `raw_object_id`, `version_id`, and `evidence_id`. The image is
-copied into the local vault; the CLI/API response does not return the original
-absolute image path.
-
-Generate OCR-related enhancements from the screenshot evidence:
-
-```powershell
-ego screen ocr ev_xxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-Without a configured OCR engine, the command writes an explicit `unsupported`
-OCR enhancement instead of failing the workflow. For local demos and tests, use
-the mock adapter:
-
-```powershell
-ego screen ocr ev_xxxxxxxxxxxxxxxxxxxxxxxxxx `
-  --adapter mock `
-  --mock-text "Visible text from the screenshot"
-```
-
-You can also run the CLI module directly:
-
-```powershell
-python -m ego_data_core.cli brief daily --date 2026-05-31
-```
-
-The database and vault are stored under `EGO_DATA_HOME` when set, or under
-`~/.ego_data_core` by default.
-
-## Run The Demo
-
-```powershell
-python scripts/run_demo.py
-```
-
-The demo uses synthetic files in `demo/sample_workspace` and prints the generated
-Daily Brief `markdown_path`. It also runs the minimum closed loop: scan, parse,
-enhance, discover automation opportunities, create an Operator Bridge action
-plan, block execution before authorization, authorize, and complete a dry-run.
-
-Supported profiles:
-
-```powershell
-$env:EGO_PROFILE = "dev"   # dev, test, or prod
-```
-
-## Run Tests
-
-```powershell
-pytest
-```
-
-## Safety Boundary
-
-Filesystem ingestion is read-only. Ego copies scanned file versions into its
-local vault and does not modify, move, rename, delete, upload, or transmit user
-files.

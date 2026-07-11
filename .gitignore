@@ -26,6 +26,8 @@ env/
 # Ego local runtime data
 /.ego/
 /.ego_data_core/
+**/.ego_data_core/
+**/.ego_demo_home/
 /vault/
 /db/
 /audit/

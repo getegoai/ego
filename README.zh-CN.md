@@ -10,7 +10,7 @@
 
 | 项目 | 职责 | 当前阶段 |
 |---|---|---|
-| [EgoLink](https://github.com/getegoai/egolink) | 随身感知、定位、蜂窝通信与实体交互 | 工程原型；现有源码正在准备导入 |
+| [EgoLink](https://github.com/getegoai/egolink) | 随身感知、定位、蜂窝通信与实体交互 | 工程原型；源码及原始 471 次连续研发提交已公开 |
 | EgoBase | 用户控制的存储、个人上下文、策略与协同行动 | 本地软件原型；初期计划保留在本仓库 |
 
 本仓库承载总体愿景、系统边界和跨项目路线。EgoBase 出现独立开发或发布需要时，再拆为独立仓库。
@@ -36,7 +36,7 @@ EgoLink 与其他个人设备
 ## 接下来
 
 - 继续开发已导入的 EgoBase/Data Core 实现及已有测试。
-- 将 EgoLink 的真实固件、服务、硬件资料和工具导入其独立仓库。
+- 在 [EgoLink 公开仓库](https://github.com/getegoai/egolink)继续固件、服务、硬件与工具研发；[历史与节点](https://github.com/getegoai/egolink/blob/main/docs/HISTORY.md)可直接查阅。
 - 在 PC 上打通版本化 EgoLink 事件、用户控制的存储、回放和小范围策略/行动闭环。
 - 通过公开提交、Issue 和 PR 持续开发，如实呈现未完成工作和已知失败。
 

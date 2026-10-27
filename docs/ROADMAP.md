@@ -4,7 +4,7 @@ This is a working direction, not a delivery schedule. Implementation status belo
 
 | Horizon | Work / 工作 |
 |---|---|
-| **Now / 现在** | Continue the imported Data Core and bring the remaining EgoLink development into its public repository. / 继续已导入的 Data Core，并将其余 EgoLink 研发迁入对应公开仓库。 |
+| **Now / 现在** | Continue Data Core and EgoLink development from their imported source and continuous history. / 当前源码与连续历史已导入，在各公开仓库继续 Data Core 与 EgoLink 的真实研发。 |
 | **Next / 接下来** | Connect EgoLink events to a PC-hosted EgoBase: store, replay, apply a small policy, and record a user decision and action result. / 在 PC 上打通 EgoLink 事件接收、保存、回放、简单策略、用户决定和行动结果记录。 |
 | **Later / 更远期** | Extend long-term personal context, authorized actions, and coordination across devices. Evaluate dedicated hardware through actual use. / 扩展个人长期上下文、授权行动和跨设备协作，根据实际使用评估专用硬件。 |
 
@@ -12,7 +12,7 @@ This is a working direction, not a delivery schedule. Implementation status belo
 
 - [x] Bring the existing Data Core into `projects/egobase/data-core/`: local evidence storage, parsing/search, briefs, policy/audit, API, CLI, and web UI. / 导入现有本地数据底座及接口。
 - [x] Include existing tests, dependencies, configuration examples, and run instructions; state which commands were checked on the imported version. / 同步已有测试、依赖、配置示例与运行说明，注明实际验证范围。
-- [ ] Link the actual EgoLink implementation and current work from its repository. / 关联 EgoLink 仓库中的真实实现和当前工作。
+- [x] Link the [actual EgoLink implementation](https://github.com/getegoai/egolink) and [retained history](https://github.com/getegoai/egolink/blob/main/docs/HISTORY.md). / 关联 EgoLink 真实实现及保留的连续历史。
 - [ ] Implement the [first Link-to-Base integration task](https://github.com/getegoai/ego/issues/2): versioned observation/evidence events, idempotent ingestion, and replay. Reuse existing schemas rather than building another generic platform. / 推进已建立的版本化事件、幂等接入和回放任务，复用已有契约。
 
 ## First connected outcome / 第一条跨设备结果

@@ -10,7 +10,7 @@ We are starting with two connected projects:
 
 | Project | Role | Current stage |
 |---|---|---|
-| [EgoLink](https://github.com/getegoai/egolink) | Wearable sensing, location, cellular communication, and physical interaction | Engineering prototype; existing source is being prepared for import |
+| [EgoLink](https://github.com/getegoai/egolink) | Wearable sensing, location, cellular communication, and physical interaction | Engineering prototype; source and its 471-commit original development lineage are public |
 | EgoBase | User-controlled storage, personal context, policies, and coordinated action | Local software prototype; intended to remain in this repository initially |
 
 This repository is the home for the overall vision, system boundaries, and cross-project roadmap. EgoBase will become a separate repository only when its development or release needs justify that change.
@@ -36,7 +36,7 @@ Local control is a design direction. It does not mean every current component al
 ## What happens next
 
 - Continue development of the imported EgoBase/Data Core implementation and its existing tests.
-- Bring EgoLink's actual firmware, services, hardware materials, and tools into its own repository.
+- Continue EgoLink's firmware, services, hardware, and tools in [its public repository](https://github.com/getegoai/egolink), with [history and milestones](https://github.com/getegoai/egolink/blob/main/docs/HISTORY.md) available for review.
 - Connect versioned EgoLink events to user-controlled storage, replay, and a small policy/action loop on a PC.
 - Develop through public commits, issues, and pull requests. Publish incomplete work and known failures alongside progress.
 

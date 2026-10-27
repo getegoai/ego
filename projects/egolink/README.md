@@ -1,5 +1,6 @@
 # EgoLink External Project
 
+> Historical project registration from July 2026; use the public EgoLink repository for current implementation status. The old internal Git address remains only in preserved historical commits.
 EgoLink 是独立活跃仓库，本目录只登记它与 Ego 总项目的关系，不复制代码。
 
 - 本地 sibling checkout：`../egolink`

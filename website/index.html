@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080a08">
+  <meta name="description" content="EgoLabs is building personal AI in the open. Explore EgoLink, EgoBase, the roadmap, and the real work behind the prototypes.">
+  <meta property="og:title" content="EgoLabs — Your AI. Your Data. Your Rules.">
+  <meta property="og:description" content="Personal AI, built in the open. Follow the development of EgoLink and EgoBase.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://getego.ai/">
+  <title>EgoLabs — Your AI. Your Data. Your Rules.</title>
+  <link rel="canonical" href="https://getego.ai/">
+  <style>
+    :root { color-scheme: dark; --bg:#080a08; --panel:#111410; --text:#f0f3ea; --muted:#a1ab9a; --line:#30362c; --green:#b4ff5a; --mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace; --sans:Inter,Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:100px; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; }
+    a,button { -webkit-tap-highlight-color:transparent; }
+    a:focus-visible,button:focus-visible { outline:2px solid var(--green); outline-offset:6px; }
+    ::selection { background:var(--green); color:var(--bg); }
+    .wrap { width:min(1160px,calc(100% - 80px)); margin-inline:auto; }
+    .skip { position:fixed; top:12px; left:12px; z-index:30; background:var(--green); color:var(--bg); padding:12px 18px; transform:translateY(-200%); }
+    .skip:focus { transform:translateY(0); }
+    .header { position:sticky; top:0; z-index:20; background:rgba(8,10,8,.96); border-bottom:1px solid var(--line); }
+    .nav { min-height:82px; display:flex; align-items:center; gap:30px; }
+    .brand { display:inline-flex; align-items:center; gap:12px; margin-right:auto; font-size:23px; font-weight:750; letter-spacing:-1px; }
+    .brand-mark { width:20px; height:20px; background:var(--green); position:relative; flex:none; }
+    .brand-mark:after { content:""; position:absolute; width:7px; height:7px; right:0; bottom:0; background:var(--bg); }
+    .nav-link { font-size:13px; color:var(--muted); transition:color .15s; }
+    .nav-link:hover { color:var(--text); }
+    .nav-github { color:var(--text); }
+    .language { display:flex; gap:2px; padding-left:16px; border-left:1px solid var(--line); }
+    .language button { border:0; background:transparent; color:var(--muted); padding:8px 7px; cursor:pointer; font-size:12px; }
+    .language button[aria-pressed="true"] { color:var(--green); }
+    .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:1.4px; line-height:1.6; text-transform:uppercase; color:var(--muted); }
+    .live { display:flex; align-items:center; gap:10px; }
+    .dot { display:inline-block; width:7px; height:7px; flex:none; border-radius:50%; background:var(--green); }
+    .hero { padding:64px 0 56px; }
+    .hero-top { display:flex; justify-content:space-between; gap:20px; }
+    .hero-top .eyebrow:first-child { color:var(--green); }
+    .hero-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:76px; align-items:end; padding:46px 0 57px; }
+    h1 { font-size:clamp(64px,7.6vw,108px); line-height:1.01; letter-spacing:-6px; font-weight:700; margin:0; }
+    h1 span { display:block; }
+    h1 .accent { color:var(--green); }
+    .hero-copy { padding-bottom:5px; }
+    .hero-copy .lead { margin:0 0 19px; font-size:22px; line-height:1.45; letter-spacing:-.45px; }
+    .body-copy { color:var(--muted); font-size:15px; line-height:1.8; margin:0; }
+    .actions { display:flex; flex-wrap:wrap; align-items:center; gap:22px; margin-top:28px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; gap:17px; padding:16px 20px; background:var(--green); color:var(--bg); font-size:13px; font-weight:700; border:1px solid var(--green); transition:background .15s,transform .15s; }
+    .button:hover { background:#ccff92; transform:translateY(-2px); }
+    .text-link { display:inline-flex; gap:12px; align-items:center; font-size:13px; line-height:1.5; }
+    .text-link:hover { color:var(--green); }
+    .arrow { font-family:var(--mono); }
+    .hero-bottom { display:flex; align-items:center; justify-content:space-between; gap:22px; padding-top:23px; border-top:1px solid var(--line); }
+    .hero-bottom p { font-size:12px; line-height:1.6; color:var(--muted); margin:0; }
+    .hero-bottom .index { font-family:var(--mono); color:var(--text); white-space:nowrap; }
+    .section { padding:76px 0; border-top:1px solid var(--line); }
+    .section-heading { display:grid; grid-template-columns:1fr 2.1fr; gap:40px; margin-bottom:38px; }
+    .section-heading .eyebrow { padding-top:8px; }
+    h2 { font-size:clamp(31px,3.5vw,46px); line-height:1.17; font-weight:550; letter-spacing:-1.8px; margin:0; max-width:760px; }
+    .intro-text { max-width:650px; margin-top:23px; color:var(--muted); line-height:1.8; font-size:15px; }
+    .intro-text p { margin:0 0 15px; }
+    .principles { display:flex; flex-wrap:wrap; gap:9px; margin-top:25px; }
+    .tag { border:1px solid var(--line); padding:8px 11px; font-family:var(--mono); font-size:10px; letter-spacing:.5px; color:var(--text); }
+    .projects { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .project { display:flex; flex-direction:column; padding:34px; border:1px solid var(--line); background:var(--panel); }
+    .project-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:45px; }
+    .project-number { color:var(--green); font-family:var(--mono); font-size:12px; }
+    .project-type { font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.8px; text-transform:uppercase; }
+    h3 { margin:0; font-size:32px; font-weight:550; letter-spacing:-1px; }
+    .project-summary { font-size:17px; line-height:1.5; margin:12px 0 17px; }
+    .project .body-copy { flex:1; }
+    .status { font-family:var(--mono); font-size:10px; line-height:1.8; color:var(--muted); padding-top:23px; margin:28px 0 20px; border-top:1px solid var(--line); }
+    .status strong { display:block; color:var(--text); font-weight:400; font-size:11px; margin-bottom:5px; }
+    .project .text-link { align-self:flex-start; }
+    .roadmap { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+    .roadmap article { padding:28px 30px 3px 0; }
+    .roadmap article+article { padding-left:30px; border-left:1px solid var(--line); }
+    .roadmap .stage { font-family:var(--mono); color:var(--muted); font-size:10px; margin-bottom:18px; }
+    .roadmap article:first-child .stage { color:var(--green); }
+    .roadmap h3 { font-size:24px; margin-bottom:15px; }
+    .roadmap p { color:var(--muted); font-size:14px; line-height:1.85; }
+    .roadmap-note { margin-top:28px; color:var(--muted); font-family:var(--mono); font-size:10px; line-height:1.7; }
+    .contribute { background:var(--green); color:var(--bg); padding:49px; display:grid; grid-template-columns:1.1fr 1fr; gap:50px; }
+    .contribute .eyebrow { color:#354921; margin-bottom:24px; }
+    .contribute h2 { font-size:43px; max-width:450px; }
+    .contribute p { font-size:15px; line-height:1.85; margin:4px 0 27px; color:#25351a; }
+    .contribute .button { background:var(--bg); color:var(--text); border-color:var(--bg); }
+    .contribute .button:hover { background:#242c1d; }
+    .support { display:grid; grid-template-columns:1fr 2.1fr; gap:40px; padding:47px 0 0; }
+    .support .body-copy { max-width:670px; font-size:13px; }
+    .footer { border-top:1px solid var(--line); padding:34px 0; }
+    .footer-top { display:flex; align-items:center; gap:24px; }
+    .footer .brand { font-size:20px; }
+    .footer-links { display:flex; gap:25px; flex-wrap:wrap; font-size:12px; color:var(--muted); }
+    .footer-links a:hover { color:var(--green); }
+    .footer-bottom { margin-top:25px; display:flex; justify-content:space-between; gap:16px; font-size:10px; color:var(--muted); line-height:1.7; font-family:var(--mono); }
+    .footer-bottom p { margin:0; }
+    html[lang="zh-CN"] h1 { font-size:clamp(50px,6.1vw,87px); letter-spacing:-3px; line-height:1.16; }
+    html[lang="zh-CN"] h2 { line-height:1.4; letter-spacing:-1px; }
+    html[lang="zh-CN"] .hero-copy .lead { line-height:1.7; }
+    @media (min-width:1500px) { .hero { padding-top:85px; padding-bottom:65px; } .hero-grid { padding-top:60px; padding-bottom:72px; } }
+    @media (max-width:960px) { .hero-grid { gap:38px; } h1 { font-size:76px; letter-spacing:-4px; } .hero-copy .lead { font-size:19px; } .section-heading,.support { grid-template-columns:1fr 2.5fr; gap:30px; } .contribute { gap:35px; padding:36px; } .contribute h2 { font-size:36px; } .project { padding:27px; } }
+    @media (max-width:720px) { .wrap { width:calc(100% - 40px); } .nav { min-height:70px; gap:16px; flex-wrap:wrap; } .nav-link:not(.nav-github) { display:none; } .brand { font-size:20px; gap:9px; } .brand-mark { width:17px; height:17px; } .language { padding-left:9px; gap:0; } .language button { padding-inline:6px; } .hero { padding:34px 0; } .hero-top { gap:10px; } .hero-top .edition { display:none; } .hero-grid { grid-template-columns:1fr; gap:35px; padding:32px 0 35px; } h1 { font-size:clamp(64px,12vw,88px); letter-spacing:-4px; } .hero-copy { max-width:500px; } .hero-copy .lead { font-size:20px; } .actions { gap:20px; margin-top:25px; } .hero-bottom { align-items:flex-start; flex-direction:column; gap:10px; } .hero-bottom .index { font-size:10px; } .section { padding:48px 0; } .section-heading,.support { grid-template-columns:1fr; gap:18px; } .section-heading { margin-bottom:28px; } h2 { font-size:32px; letter-spacing:-1px; } .intro-text { margin-top:18px; } .projects { grid-template-columns:1fr; gap:16px; } .project { padding:27px; } .project-top { margin-bottom:30px; } .roadmap { grid-template-columns:1fr; } .roadmap article,.roadmap article+article { padding:25px 0; border-left:0; } .roadmap article+article { border-top:1px solid var(--line); } .roadmap .stage { margin-bottom:12px; } .roadmap p { margin-bottom:0; } .roadmap-note { margin-top:0; } .contribute { grid-template-columns:1fr; gap:24px; padding:28px; } .contribute h2 { font-size:34px; } .contribute .eyebrow { margin-bottom:18px; } .contribute p { margin-top:0; margin-bottom:20px; } .support { padding-top:32px; } .footer-top { align-items:flex-start; flex-direction:column; gap:25px; } .footer-bottom { flex-direction:column; gap:12px; } html[lang="zh-CN"] h1 { font-size:clamp(49px,9vw,70px); letter-spacing:-2px; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*:before,*:after { transition:none!important; animation:none!important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main" data-zh="跳到正文">Skip to content</a>
+  <header class="header">
+    <nav class="nav wrap" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="EgoLabs home"><span class="brand-mark" aria-hidden="true"></span>EgoLabs</a>
+      <a class="nav-link" href="#projects" data-zh="项目">Projects</a>
+      <a class="nav-link" href="#roadmap" data-zh="路线">Roadmap</a>
+      <a class="nav-link nav-github" href="https://github.com/getegoai">GitHub <span aria-hidden="true">↗</span></a>
+      <div class="language" role="group" aria-label="Language / 语言">
+        <button type="button" data-language="en" aria-pressed="true" lang="en">EN</button>
+        <button type="button" data-language="zh-CN" aria-pressed="false" lang="zh-CN">中文</button>
+      </div>
+    </nav>
+  </header>
+  <main id="main">
+    <div class="wrap">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-top">
+          <div class="eyebrow live"><span class="dot" aria-hidden="true"></span><span data-zh="早期原型 · 公开研发">Early prototypes · Open development</span></div>
+          <div class="eyebrow edition">EGO / 001</div>
+        </div>
+        <div class="hero-grid">
+          <h1 id="hero-title"><span data-zh="你的 AI。">Your AI.</span><span data-zh="你的数据。">Your Data.</span><span class="accent" data-zh="由你掌控。">Your Rules.</span></h1>
+          <div class="hero-copy">
+            <p class="lead" data-zh="让个人 AI 扩展你的认知与行动能力，持续推进你在意的事。">Personal AI to help you understand more, do more, and pursue what matters to you.</p>
+            <p class="body-copy" data-zh="我们称它为 Ego。从 EgoLink 随身设备与 EgoBase 本地中枢开始，我们正在探索一个能长期与你协作、由你掌控的 AI 系统。">We call it Ego. Starting with the EgoLink wearable and EgoBase local hub, we are exploring an AI system that can grow with you, under your control.</p>
+            <div class="actions">
+              <a class="button" href="https://github.com/getegoai/ego"><span data-zh="在 GitHub 探索 Ego">Explore Ego on GitHub</span><span class="arrow" aria-hidden="true">↗</span></a>
+              <a class="text-link" href="#roadmap"><span data-zh="查看路线">Our roadmap</span><span class="arrow" aria-hidden="true">↓</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="hero-bottom">
+          <p data-zh="项目仍在早期。代码、取舍、测试和待解决的问题，一起公开。">Still early. The code, decisions, tests, and unfinished work belong here.</p>
+          <p class="index" data-zh="01 / EGOLINK　　02 / EGOBASE">01 / EGOLINK &nbsp; 02 / EGOBASE</p>
+        </div>
+      </section>
+      <section class="section" id="vision" aria-labelledby="vision-title">
+        <div class="section-heading">
+          <div class="eyebrow" data-zh="01 / 愿景">01 / The direction</div>
+          <div>
+            <h2 id="vision-title" data-zh="一个由你掌控、与你共同成长的 AI 伙伴。">An AI companion that grows with you.</h2>
+            <div class="intro-text">
+              <p data-zh="帮助你理解新的领域、采取下一步行动，并在明确授权的范围内持续推进长期目标。Ego 的愿景，是扩大个人能够完成的事情的范围。">Understand unfamiliar things. Take the next step. Carry longer-term goals forward within clear permissions. Ego’s ambition is to expand what one person can accomplish.</p>
+              <p data-zh="我们以本地优先、清晰的数据流和用户控制为设计方向。每个版本都会说明哪些已经实现、哪些经过测试，以及哪些仍待完成。">Our design direction is local first, with clear data flows and user control. Each release should explain what works, what has been tested, and what is still being built.</p>
+            </div>
+            <div class="principles"><span class="tag" data-zh="个人掌控">PERSONAL CONTROL</span><span class="tag" data-zh="本地优先">LOCAL FIRST</span><span class="tag" data-zh="公开研发">OPEN DEVELOPMENT</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="section" id="projects" aria-labelledby="projects-title">
+        <div class="section-heading"><div class="eyebrow" data-zh="02 / 项目">02 / The projects</div><h2 id="projects-title" data-zh="从两个相连的部分开始。">Two connected starting points.</h2></div>
+        <div class="projects">
+          <article class="project">
+            <div class="project-top"><span class="project-number">[ 01 ]</span><span class="project-type" data-zh="随身设备">Wearable device</span></div>
+            <h3>EgoLink</h3>
+            <p class="project-summary" data-zh="连接个人 AI 与现实世界。">A connection to the physical world.</p>
+            <p class="body-copy" data-zh="探索定位、运动感知、蜂窝通信和实体 SOS 交互。当前重点是让原型进入可重复的日常测试，持续改进并记录它的能力边界。">Exploring location, motion sensing, cellular communication, and a physical SOS interaction. Current work focuses on repeatable daily testing, practical improvements, and documenting the prototype’s limits.</p>
+            <div class="status"><strong data-zh="状态 / 工程原型">STATUS / ENGINEERING PROTOTYPE</strong><span data-zh="硬件与软件持续开发中，产品验证尚未完成。">Hardware and software are in development. Product validation is incomplete.</span></div>
+            <a class="text-link" href="https://github.com/getegoai/egolink"><span data-zh="查看 EgoLink 项目">Explore EgoLink</span><span class="arrow" aria-hidden="true">↗</span></a>
+          </article>
+          <article class="project">
+            <div class="project-top"><span class="project-number">[ 02 ]</span><span class="project-type" data-zh="本地中枢">Local hub</span></div>
+            <h3>EgoBase</h3>
+            <p class="project-summary" data-zh="为个人 AI 保留连续的上下文。">A home for your personal context.</p>
+            <p class="body-copy" data-zh="用于接收设备事件、保存个人上下文，并逐步支持持续性的任务。初期使用现有电脑和软件数据底座，验证这些能力怎样协同工作。">Being developed to receive device events, keep personal context, and support longer-running tasks. Initial work uses existing computers and a software data core while we test how the pieces fit together.</p>
+            <div class="status"><strong data-zh="状态 / 早期软件基础">STATUS / EARLY SOFTWARE FOUNDATION</strong><span data-zh="整体体验仍在建设中，当前工作位于 Ego 仓库。">The integrated experience is still being built, within the Ego repository.</span></div>
+            <a class="text-link" href="https://github.com/getegoai/ego"><span data-zh="查看 Ego 与 EgoBase">Explore Ego &amp; EgoBase</span><span class="arrow" aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+      </section>
+      <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+        <div class="section-heading"><div class="eyebrow" data-zh="03 / 路线">03 / The roadmap</div><h2 id="roadmap-title" data-zh="小步实现，持续验证。">Small steps. Real progress.</h2></div>
+        <div class="roadmap">
+          <article><div class="stage" data-zh="01 — 当前">01 — IN PROGRESS</div><h3 data-zh="现在">Now</h3><p data-zh="公开项目方向与当前实现。让 EgoLink 原型进入可重复的日常测试，清楚记录成功、失败与待解决的问题。">Publish the project direction and current implementation. Bring EgoLink prototypes into repeatable daily testing, with clear records of what works and what fails.</p></article>
+          <article><div class="stage" data-zh="02 — 下一步">02 — UP NEXT</div><h3 data-zh="接下来">Next</h3><p data-zh="连接 EgoLink 与最小可用的本地 EgoBase。改进可靠性、功耗、数据处理，以及复现问题和参与贡献所需的工具。">Connect EgoLink to a minimal local EgoBase experience. Improve reliability, power use, data handling, and the tools for reproducing problems and contributing.</p></article>
+          <article><div class="stage" data-zh="03 — 持续探索">03 — EXPLORING</div><h3 data-zh="更远期">Later</h3><p data-zh="探索更丰富的个人上下文、跨时间持续协助，以及人与设备之间的协作。让真实使用推动产品演进。">Explore richer personal context, longer-running assistance, and coordination across devices and people. Let practical use guide the product.</p></article>
+        </div>
+        <p class="roadmap-note" data-zh="路线表达发展方向，并非上市时间承诺。">This is a direction, not a shipping schedule.</p>
+      </section>
+      <section class="section" id="contribute" aria-labelledby="contribute-title">
+        <div class="contribute">
+          <div><div class="eyebrow" data-zh="04 / 一起建设">04 / Build with us</div><h2 id="contribute-title" data-zh="跟随真实研发，参与下一步。">Follow the work.<br>Shape what comes next.</h2></div>
+          <div><p data-zh="我们以小步提交推进真实项目，在 Issue、PR 和设计记录中保留问题、实验与取舍。欢迎复现问题、改进文档、评审设计、测试支持的硬件，或提出代码改动。">We develop the real project through small changes, with issues, experiments, and trade-offs recorded along the way. Help reproduce a problem, improve documentation, review a design, test supported hardware, or propose code.</p><a class="button" href="https://github.com/getegoai"><span data-zh="前往 EgoLabs GitHub">Visit EgoLabs on GitHub</span><span class="arrow" aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="support"><div class="eyebrow" data-zh="持续发展的方式">A sustainable project</div><p class="body-copy" data-zh="我们正在探索硬件和可选服务，让项目能够持续开发，也让 Ego 更容易使用。产品组合、价格与供应时间仍待验证。各公开组件会注明自己的许可协议。">We are exploring hardware and optional services that could support continued development and make Ego easier to use. Packages, pricing, and availability are still being evaluated. Each published component states its own license.</p></div>
+      </section>
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-top"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>EgoLabs</a><div class="footer-links"><a href="https://github.com/getegoai" data-zh="GitHub 组织">GitHub organization</a><a href="https://github.com/getegoai/ego">Ego ↗</a><a href="https://github.com/getegoai/egolink">EgoLink ↗</a></div></div>
+      <div class="footer-bottom"><p data-zh="个人 AI，公开建设。">PERSONAL AI, BUILT IN THE OPEN.</p><p data-zh="早期原型 · 以仓库中的当前状态为准">EARLY PROTOTYPES · SEE REPOSITORIES FOR CURRENT STATUS</p></div>
+    </div>
+  </footer>
+  <script>
+    // Language preference stays in this page only; no storage, cookies, or requests.
+    const translations = [...document.querySelectorAll('[data-zh]')].map(element => ({element, english:element.innerHTML, chinese:element.dataset.zh}));
+    const languageButtons = [...document.querySelectorAll('[data-language]')];
+    function setLanguage(language) {
+      document.documentElement.lang = language;
+      for (const {element, english, chinese} of translations) {
+        if (language === 'zh-CN') element.textContent = chinese;
+        else element.innerHTML = english;
+      }
+      for (const button of languageButtons) button.setAttribute('aria-pressed', String(button.dataset.language === language));
+    }
+    for (const button of languageButtons) button.addEventListener('click', () => setLanguage(button.dataset.language));
+    if (new URLSearchParams(window.location.search).get('lang') === 'zh') setLanguage('zh-CN');
+  </script>
+</body>
+</html>

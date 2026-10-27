@@ -24,6 +24,9 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 ```
 
+On Linux or macOS, activate the environment with `source .venv/bin/activate`
+instead of the PowerShell activation command above.
+
 ## Run The Local API
 
 The API remains the v0.1 local API. FastAPI exposes the generated contract at
@@ -144,6 +147,15 @@ $env:EGO_PROFILE = "dev"   # dev, test, or prod
 ```powershell
 pytest
 ```
+
+## License and history
+
+Original source, scripts, tests, configuration, machine-readable schemas, and
+sample fixtures use [Apache-2.0](LICENSE). Prose documentation uses CC BY 4.0,
+as defined in the [repository license scope](../../../LICENSE). Dependencies
+retain their own licenses; see [third-party notices](../../../THIRD_PARTY_NOTICES.md).
+The [history index](../../../docs/HISTORY.md) records the original development
+sequence and the later workspace move.
 
 ## Safety Boundary
 

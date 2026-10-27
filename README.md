@@ -1,62 +1,65 @@
-# Project Ego
+# Ego
 
-Ego 是一个面向个人长期使用的私有 AI 系统项目，而不是单一硬件、单一模型或单一应用。
+**Personal AI, built in the open.**
 
-当前总项目正在进行产品边界重置。新的组织原则是：
+[中文](README.zh-CN.md) · [EgoLabs](https://github.com/getegoai) · [getego.ai](https://getego.ai) · [Roadmap](docs/ROADMAP.md)
 
-- `EgoLink` 负责随身感知、定位、安全交互和低功耗事件入口；
-- `EgoBase` 负责家庭/本地可信运行、长期状态、策略、设备协同和算力调度；
-- `Ego Data Core` 是 EgoBase 可复用的软件底座之一，负责 Evidence、Enhancement、Work Graph、Brief、Policy 和 Audit；
-- `Ego Operator` 是跨项目的受控行动能力，不再单独代表整个 Ego 产品；
-- 云端只作为可选增强、远程中继和设备服务，不作为用户数据与身份的唯一控制者。
+Our goal is to give people an AI companion that expands what they can understand and do, while keeping them in control of their data, permissions, and long-term context. We call this an **AI shadow**: a system that can grow with a person across devices and help carry important goals forward.
 
-## Repository Role
+We are starting with two connected projects:
 
-这个仓库现在承担 Ego 总项目的组合管理与 EgoBase 工作区职责：
+| Project | Role | Current stage |
+|---|---|---|
+| [EgoLink](https://github.com/getegoai/egolink) | Wearable sensing, location, cellular communication, and physical interaction | Engineering prototype; existing source is being prepared for import |
+| EgoBase | User-controlled storage, personal context, policies, and coordinated action | Local software prototype; intended to remain in this repository initially |
 
-```text
-ego/
-  docs/                         总项目定位、路线与状态
-  projects/
-    egobase/                    EgoBase 产品与软件工作区
-      data-core/                已实现的 Ego Data Core v0.1
-    egolink/                    外部独立仓库的登记入口
-    legacy/                     旧 Agent / Kernel 资产登记
-```
+This repository is the home for the overall vision, system boundaries, and cross-project roadmap. EgoBase will become a separate repository only when its development or release needs justify that change.
 
-EgoLink 仍保留在独立仓库中，以避免破坏其活跃开发历史和发布流程。详见
-[项目登记](projects/README.md)。
+## Current status
 
-## Current Direction
+**The existing [EgoBase/Data Core implementation](projects/egobase/data-core/) is now included with its original 34-commit development history.** The public project definition, roadmap, and [website source](website/) are retained. The website files are unchanged by this import.
 
-当前优先级不是继续堆叠 EgoBase 硬件规格，而是先证明一个跨设备产品闭环：
+Development started before this public launch. An existing Data Core prototype supports local evidence storage, document processing, search, daily briefs, policies, audit records, and authorized action dry-runs. EgoLink has separate hardware and firmware work. The complete EgoLink-to-EgoBase product loop has not yet been validated.
+
+The intended system is:
 
 ```text
-EgoLink 产生受控事件与证据
-  -> EgoBase 接收并保留长期状态
-  -> 本地策略判断与模型增强
-  -> 用户收到有价值的提醒、解释或行动建议
-  -> 用户授权后执行并形成审计
+EgoLink and other personal devices
+  -> events and evidence
+  -> EgoBase: personal state, policies, and context
+  -> suggestions or authorized actions
+  -> recorded results and feedback
 ```
 
-在这个闭环被真实用户连续使用前，EgoBase 以现有 PC/迷你主机作为参考运行环境，
-不启动专用硬件量产定义。
+Local control is a design direction. It does not mean every current component already runs locally or that privacy and reliability are fully validated.
 
-## Start Here
+## What happens next
 
-- [总项目产品组合](docs/PRODUCT_PORTFOLIO.md)
-- [2026-07 重新定位分析](docs/REPOSITIONING_2026-07.md)
-- [总项目开发状态](docs/DEVELOPMENT_STATUS.md)
-- [EgoBase 工作区](projects/egobase/README.md)
-- [EgoBase Product Charter](projects/egobase/docs/PRODUCT_CHARTER.md)
-- [Ego Data Core](projects/egobase/data-core/README.md)
+- Continue development of the imported EgoBase/Data Core implementation and its existing tests.
+- Bring EgoLink's actual firmware, services, hardware materials, and tools into its own repository.
+- Connect versioned EgoLink events to user-controlled storage, replay, and a small policy/action loop on a PC.
+- Develop through public commits, issues, and pull requests. Publish incomplete work and known failures alongside progress.
 
-运行现有 Data Core：
+See the [roadmap](docs/ROADMAP.md) for Now / Next / Later and concrete import tasks.
 
-```powershell
-cd projects\egobase\data-core
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+## Run Data Core
+
+Python 3.11 or newer is required. From `projects/egobase/data-core/`, create and activate a virtual environment, then run:
+
+```sh
 python -m pip install -e ".[dev]"
-python scripts\run_demo.py
+python scripts/run_demo.py
+python -m pytest
 ```
+
+See the [component README](projects/egobase/data-core/README.md) for setup, API, CLI, local UI, and data locations. The bundled sample run is one way to exercise the actual implementation; this repository remains the product development home.
+
+The [history index](docs/HISTORY.md) records original commits, migration boundaries, and historical milestones. Older milestones preserve the development process; they are not new claims that every old version runs on current dependencies.
+
+## Participate
+
+Help shape and build the actual system: discuss a use case, question an interface, report a problem, improve documentation, or contribute an implementation. Start with an [issue](https://github.com/getegoai/ego/issues) or read [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+The original documentation is licensed under **CC BY 4.0**; see [LICENSE](LICENSE). The [website implementation](website/) is licensed under **Apache-2.0**, as specified in [website/LICENSE](website/LICENSE). The imported original Data Core source, tests, schemas, configuration, and sample fixtures are licensed under **Apache-2.0**; see [Data Core LICENSE](projects/egobase/data-core/LICENSE). Prose documentation remains CC BY 4.0. See [third-party notices](THIRD_PARTY_NOTICES.md) for dependency boundaries. Hardware, models, data, and third-party materials will have their applicable licenses stated separately.

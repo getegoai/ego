@@ -1,0 +1,25 @@
+License scope for Project Ego
+
+Copyright (c) 2026 EgoLabs contributors.
+
+Original prose documentation, including README files and prose under docs/,
+is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+Original Data Core software under projects/egobase/data-core/ is licensed under
+Apache License 2.0: source, scripts, tests, build/runtime configuration, machine-
+readable schemas and contracts, and sample fixtures (including fixture Markdown).
+The full Apache-2.0 text is in projects/egobase/data-core/LICENSE. The prose
+documentation exception above remains applicable to that component's README and
+prose documentation files.
+
+The website retains its existing separate scope and license in website/LICENSE;
+no website files are changed by this migration.
+
+This license grant also covers the project's own original materials in the
+retained development history according to the same content categories. It does
+not change historical commit contents or override third-party rights or notices.
+External dependencies retain their own licenses; see THIRD_PARTY_NOTICES.md.
+Hardware, model weights, and external datasets are not licensed by implication.
+No trademark rights in EgoLabs, Ego, or related brands are granted here.

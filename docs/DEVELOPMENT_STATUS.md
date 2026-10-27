@@ -1,5 +1,6 @@
 # Ego Development Status
 
+> Historical July 2026 project record. Preserve its dated statements as development history; current public scope and next work are in [README](../README.md), [ROADMAP](ROADMAP.md), and the [history index](HISTORY.md).
 **Updated:** 2026-07-12
 
 **Program phase:** Portfolio reset / EgoBase product reset

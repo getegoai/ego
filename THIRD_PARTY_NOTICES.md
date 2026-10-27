@@ -1,7 +1,7 @@
 # Third-party boundaries
 
-The imported project source does not vendor external libraries, binary SDKs,
-model weights, private runtime stores, or external datasets. Dependencies are
+The Data Core runtime does not vendor external libraries, binary SDKs,
+model weights, private runtime stores, or external datasets. Its dependencies are
 installed from the component's `pyproject.toml` and retain their own licenses.
 The project's Apache-2.0 and CC BY 4.0 grants do not relicense dependencies.
 
@@ -24,3 +24,12 @@ retain the licenses and notices supplied with the distributions they ship.
 Bundled demo and test fixtures are project sample data, not imported user records.
 Documentation references to other products do not imply affiliation or a grant
 of rights in those products. The website's existing license remains unchanged.
+
+## Documentation artwork
+
+The system concept illustration uses a bundled copy of the **Anatomy SVG kit**,
+copyright (c) 2026 Ryan, under the MIT license. Its [full license](docs/media/system/vendor/LICENSE)
+and [kit source](docs/media/system/vendor/iso-kit.mjs) are retained beside the
+figure. This helper is used to generate documentation artwork; it is not a
+Data Core runtime dependency. Original figure/build sources and media scope
+are described in the [visual asset guide](docs/media/README.md).

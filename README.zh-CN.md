@@ -1,5 +1,7 @@
 # Ego
 
+![EgoLabs：你的 AI，你的数据，你的规则](docs/media/ego-cover.svg)
+
 **公开构建由个人掌控的 AI。**
 
 [English](README.md) · [EgoLabs](https://github.com/getegoai) · [getego.ai](https://getego.ai) · [路线](docs/ROADMAP.md)
@@ -21,17 +23,19 @@
 
 项目在公开启动前已有研发。现有 Data Core 原型支持本地证据存储、文档处理、检索、每日简报、策略、审计与授权后的行动演练；EgoLink 已有独立硬件和固件工作。EgoLink 到 EgoBase 的完整产品闭环尚未完成验证。
 
-目标系统关系：
+![产品方向示意：EgoLink 物理观察、个人掌控的 EgoBase 与有证据支持的决定](docs/media/system/ego-system.svg)
 
-```text
-EgoLink 与其他个人设备
-  -> 事件和证据
-  -> EgoBase：个人状态、策略与上下文
-  -> 建议或经授权的行动
-  -> 结果记录与反馈
-```
+*产品方向概念图。EgoLink 仍为工程原型，Data Core 是运行在 PC 上的软件原型，
+完整连接仍在研发中。*
 
 本地控制是设计方向，不表示当前所有组件已在本地运行，也不表示隐私和可靠性已完成验证。
+
+### 当前软件界面
+
+![Data Core 真实本地界面，运行仓库自带的合成演示工作区](docs/media/screenshots/data-core-workspace.png)
+
+*现有 Data Core 应用的真实截图，使用项目自带的合成演示文件。
+[图片导览](docs/VISUAL_TOUR.md)还包含证据检索、实物照片、图片来源与可直接取用的宣传配图。*
 
 ## 接下来
 

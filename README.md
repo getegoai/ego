@@ -1,5 +1,7 @@
 # Ego
 
+![EgoLabs — Your AI. Your data. Your rules.](docs/media/ego-cover.svg)
+
 **Personal AI, built in the open.**
 
 [中文](README.zh-CN.md) · [EgoLabs](https://github.com/getegoai) · [getego.ai](https://getego.ai) · [Roadmap](docs/ROADMAP.md)
@@ -21,17 +23,20 @@ This repository is the home for the overall vision, system boundaries, and cross
 
 Development started before this public launch. An existing Data Core prototype supports local evidence storage, document processing, search, daily briefs, policies, audit records, and authorized action dry-runs. EgoLink has separate hardware and firmware work. The complete EgoLink-to-EgoBase product loop has not yet been validated.
 
-The intended system is:
+![Product-direction concept: EgoLink observations, user-controlled EgoBase and evidence-backed decisions](docs/media/system/ego-system.svg)
 
-```text
-EgoLink and other personal devices
-  -> events and evidence
-  -> EgoBase: personal state, policies, and context
-  -> suggestions or authorized actions
-  -> recorded results and feedback
-```
+*Product-direction concept. EgoLink is an engineering prototype; Data Core is a
+software prototype on a PC. The full connection is still in development.*
 
 Local control is a design direction. It does not mean every current component already runs locally or that privacy and reliability are fully validated.
+
+### The current software
+
+![Actual Data Core Dashboard running locally with the repository's synthetic demo workspace](docs/media/screenshots/data-core-workspace.png)
+
+*The existing Data Core UI, captured from a local run with the project's synthetic
+demo files. See the [visual tour](docs/VISUAL_TOUR.md) for evidence search, hardware
+photos, image sources and ready-to-share graphics.*
 
 ## What happens next
 

@@ -11,6 +11,11 @@ vault, import manual screenshot evidence, generate screenshot OCR enhancements,
 parse document text, generate rule-based enhancements, discover work graph
 items, and export an evidence-backed Daily Brief as Markdown.
 
+![Existing Data Core Dashboard running with the project's synthetic demo workspace](../../../docs/media/screenshots/data-core-workspace.png)
+
+*Actual local development UI with the bundled synthetic demo files. More views
+and image provenance are in the [visual tour](../../../docs/VISUAL_TOUR.md).*
+
 ## Requirements
 
 - Python 3.11 or newer

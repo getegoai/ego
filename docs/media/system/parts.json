@@ -1,0 +1,430 @@
+{
+  "concept": {
+    "title": "A personal data workspace",
+    "kind": "Product direction / concept",
+    "link": {
+      "stage": "Engineering prototype",
+      "depiction": "Generic exposed development board; not a PCB1 layout or finished enclosure"
+    },
+    "base": {
+      "stage": "Data Core software prototype",
+      "depiction": "An ordinary personal computer; not a dedicated EgoBase appliance"
+    },
+    "integration": {
+      "complete": false,
+      "label": "Link → Base integration is not yet complete."
+    },
+    "permission": "Evidence and context support actions authorized by the user.",
+    "physicalMeaning": {
+      "board": "Physical observations",
+      "computer": "User-controlled storage and personal context",
+      "paper": "Traceable evidence, source and time",
+      "selectedControl": "User authorization before an action"
+    }
+  },
+  "physicalParts": 65,
+  "groups": {
+    "workspace": [
+      "felt underside",
+      "work mat"
+    ],
+    "computer": [
+      "lower chassis",
+      "keyboard deck",
+      "left hinge",
+      "right hinge",
+      "display housing",
+      "display bezel",
+      "display glass",
+      "keyboard recess",
+      "trackpad recess",
+      "trackpad",
+      "left speaker grille",
+      "right speaker grille",
+      "front opening notch"
+    ],
+    "keys": [
+      "keycap 01",
+      "keycap 02",
+      "keycap 03",
+      "keycap 04",
+      "keycap 05",
+      "keycap 06",
+      "keycap 07",
+      "keycap 08",
+      "keycap 09",
+      "keycap 10",
+      "keycap 11",
+      "keycap 12",
+      "keycap 13",
+      "keycap 14",
+      "keycap 15",
+      "keycap 16",
+      "keycap 17",
+      "keycap 18",
+      "keycap 19",
+      "keycap 20",
+      "keycap 21",
+      "keycap 22",
+      "keycap 23",
+      "keycap 24",
+      "keycap 25",
+      "keycap 26",
+      "keycap 27",
+      "keycap 28",
+      "keycap 29",
+      "keycap 30"
+    ],
+    "observations": [
+      "board support",
+      "exposed circuit board",
+      "controller package",
+      "radio shield",
+      "antenna zone",
+      "USB connector",
+      "button body",
+      "button cap",
+      "sensor package",
+      "header rail one",
+      "header rail two",
+      "passive one",
+      "passive two"
+    ],
+    "evidence": [
+      "tray base",
+      "tray rear wall",
+      "tray side wall",
+      "tray front lip",
+      "archive card",
+      "source receipt",
+      "receipt retaining clip"
+    ]
+  },
+  "painterOrder": [
+    {
+      "name": "felt underside",
+      "group": "workspace",
+      "depth": 21.712
+    },
+    {
+      "name": "work mat",
+      "group": "workspace",
+      "depth": 22.964
+    },
+    {
+      "name": "lower chassis",
+      "group": "computer",
+      "depth": 20.43
+    },
+    {
+      "name": "keyboard deck",
+      "group": "computer",
+      "depth": 22.473
+    },
+    {
+      "name": "left hinge",
+      "group": "computer",
+      "depth": -33.619
+    },
+    {
+      "name": "right hinge",
+      "group": "computer",
+      "depth": 14.966
+    },
+    {
+      "name": "display housing",
+      "group": "computer",
+      "depth": 14.465
+    },
+    {
+      "name": "display bezel",
+      "group": "computer",
+      "depth": 15.775
+    },
+    {
+      "name": "display glass",
+      "group": "computer",
+      "depth": 16.526
+    },
+    {
+      "name": "keyboard recess",
+      "group": "computer",
+      "depth": 15.406
+    },
+    {
+      "name": "trackpad recess",
+      "group": "computer",
+      "depth": 45.95
+    },
+    {
+      "name": "trackpad",
+      "group": "computer",
+      "depth": 46.045
+    },
+    {
+      "name": "left speaker grille",
+      "group": "computer",
+      "depth": -18.342
+    },
+    {
+      "name": "right speaker grille",
+      "group": "computer",
+      "depth": 46.598
+    },
+    {
+      "name": "front opening notch",
+      "group": "computer",
+      "depth": 57.241
+    },
+    {
+      "name": "keycap 01",
+      "group": "keys",
+      "depth": -21.932
+    },
+    {
+      "name": "keycap 02",
+      "group": "keys",
+      "depth": -15.558
+    },
+    {
+      "name": "keycap 03",
+      "group": "keys",
+      "depth": -9.184
+    },
+    {
+      "name": "keycap 04",
+      "group": "keys",
+      "depth": -2.81
+    },
+    {
+      "name": "keycap 05",
+      "group": "keys",
+      "depth": 3.563
+    },
+    {
+      "name": "keycap 06",
+      "group": "keys",
+      "depth": 9.937
+    },
+    {
+      "name": "keycap 07",
+      "group": "keys",
+      "depth": 16.311
+    },
+    {
+      "name": "keycap 08",
+      "group": "keys",
+      "depth": 22.685
+    },
+    {
+      "name": "keycap 09",
+      "group": "keys",
+      "depth": 29.059
+    },
+    {
+      "name": "keycap 10",
+      "group": "keys",
+      "depth": -13.894
+    },
+    {
+      "name": "keycap 11",
+      "group": "keys",
+      "depth": -7.52
+    },
+    {
+      "name": "keycap 12",
+      "group": "keys",
+      "depth": -1.146
+    },
+    {
+      "name": "keycap 13",
+      "group": "keys",
+      "depth": 5.228
+    },
+    {
+      "name": "keycap 14",
+      "group": "keys",
+      "depth": 11.601
+    },
+    {
+      "name": "keycap 15",
+      "group": "keys",
+      "depth": 17.975
+    },
+    {
+      "name": "keycap 16",
+      "group": "keys",
+      "depth": 24.349
+    },
+    {
+      "name": "keycap 17",
+      "group": "keys",
+      "depth": 30.723
+    },
+    {
+      "name": "keycap 18",
+      "group": "keys",
+      "depth": 37.097
+    },
+    {
+      "name": "keycap 19",
+      "group": "keys",
+      "depth": -5.856
+    },
+    {
+      "name": "keycap 20",
+      "group": "keys",
+      "depth": 0.518
+    },
+    {
+      "name": "keycap 21",
+      "group": "keys",
+      "depth": 6.892
+    },
+    {
+      "name": "keycap 22",
+      "group": "keys",
+      "depth": 13.265
+    },
+    {
+      "name": "keycap 23",
+      "group": "keys",
+      "depth": 19.639
+    },
+    {
+      "name": "keycap 24",
+      "group": "keys",
+      "depth": 26.013
+    },
+    {
+      "name": "keycap 25",
+      "group": "keys",
+      "depth": 32.387
+    },
+    {
+      "name": "keycap 26",
+      "group": "keys",
+      "depth": 38.761
+    },
+    {
+      "name": "keycap 27",
+      "group": "keys",
+      "depth": 45.134
+    },
+    {
+      "name": "keycap 28",
+      "group": "keys",
+      "depth": 3.536
+    },
+    {
+      "name": "keycap 29",
+      "group": "keys",
+      "depth": 25.423
+    },
+    {
+      "name": "keycap 30",
+      "group": "keys",
+      "depth": 49.187
+    },
+    {
+      "name": "board support",
+      "group": "observations",
+      "depth": -17.136
+    },
+    {
+      "name": "exposed circuit board",
+      "group": "observations",
+      "depth": -16.238
+    },
+    {
+      "name": "controller package",
+      "group": "observations",
+      "depth": -16.154
+    },
+    {
+      "name": "radio shield",
+      "group": "observations",
+      "depth": -31.341
+    },
+    {
+      "name": "antenna zone",
+      "group": "observations",
+      "depth": -22.038
+    },
+    {
+      "name": "USB connector",
+      "group": "observations",
+      "depth": 9.384
+    },
+    {
+      "name": "button body",
+      "group": "observations",
+      "depth": 6.351
+    },
+    {
+      "name": "button cap",
+      "group": "observations",
+      "depth": 7.331
+    },
+    {
+      "name": "sensor package",
+      "group": "observations",
+      "depth": -8.73
+    },
+    {
+      "name": "header rail one",
+      "group": "observations",
+      "depth": -23.818
+    },
+    {
+      "name": "header rail two",
+      "group": "observations",
+      "depth": 2.159
+    },
+    {
+      "name": "passive one",
+      "group": "observations",
+      "depth": -7.653
+    },
+    {
+      "name": "passive two",
+      "group": "observations",
+      "depth": -2.842
+    },
+    {
+      "name": "tray base",
+      "group": "evidence",
+      "depth": 99.351
+    },
+    {
+      "name": "tray rear wall",
+      "group": "evidence",
+      "depth": 76.956
+    },
+    {
+      "name": "tray side wall",
+      "group": "evidence",
+      "depth": 114.648
+    },
+    {
+      "name": "tray front lip",
+      "group": "evidence",
+      "depth": 126.43
+    },
+    {
+      "name": "archive card",
+      "group": "evidence",
+      "depth": 98.6
+    },
+    {
+      "name": "source receipt",
+      "group": "evidence",
+      "depth": 103.268
+    },
+    {
+      "name": "receipt retaining clip",
+      "group": "evidence",
+      "depth": 87.92
+    }
+  ]
+}

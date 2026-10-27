@@ -6,8 +6,9 @@ Copyright (c) 2026 EgoLabs contributors.
 License summary: https://creativecommons.org/licenses/by/4.0/
 Legal terms: https://creativecommons.org/licenses/by/4.0/legalcode
 
-This publication contains project documentation, not implementation source.
-The intended Apache-2.0 license for future software takes effect only when
-that software is imported with an explicit license. Hardware, models, data,
+The website implementation in website/index.html is licensed separately
+under Apache-2.0; see website/LICENSE. EgoBase product implementation has
+not yet been imported. The intended Apache-2.0 license for future product
+software takes effect when it is imported with an explicit license. Hardware, models, data,
 and third-party materials are not automatically covered by this declaration.
 This license does not grant trademark rights in EgoLabs, Ego, or related brands.

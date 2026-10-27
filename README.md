@@ -17,7 +17,7 @@ This repository is the home for the overall vision, system boundaries, and cross
 
 ## Current status
 
-**This first public version contains the project definition and roadmap. The existing implementation has not yet been imported here.**
+**This first public version contains the project definition, roadmap, and [website source](website/). The existing EgoBase product implementation has not yet been imported here.**
 
 Development started before this public launch. An existing Data Core prototype supports local evidence storage, document processing, search, daily briefs, policies, audit records, and authorized action dry-runs. EgoLink has separate hardware and firmware work. The complete EgoLink-to-EgoBase product loop has not yet been validated.
 
@@ -48,4 +48,4 @@ Help shape and build the actual system: discuss a use case, question an interfac
 
 ## License
 
-The original documentation in this initial publication is licensed under **CC BY 4.0**; see [LICENSE](LICENSE). No implementation source is included in this version. We intend to publish our own software under **Apache-2.0** when it is imported and explicitly licensed. Hardware, models, data, and third-party materials will have their applicable licenses stated separately.
+The original documentation is licensed under **CC BY 4.0**; see [LICENSE](LICENSE). The [website implementation](website/) is licensed under **Apache-2.0**, as specified in [website/LICENSE](website/LICENSE). We intend to use Apache-2.0 for our own product software when it is imported and explicitly licensed. Hardware, models, data, and third-party materials will have their applicable licenses stated separately.
